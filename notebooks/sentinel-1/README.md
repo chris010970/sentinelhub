@@ -13,9 +13,9 @@ product evaluation code based on custom scripts taken from [Sentinel-Hub example
 
 Example Sentinel-Hub custom scripts may be interactively evaluated in [EO Browser](https://apps.sentinel-hub.com/eo-browser) and [Sentinel Playground](https://apps.sentinel-hub.com/sentinel-playground/) browser applications.
 
-Jupyter notebook example collections:
-* Sentinel-1
-* Sentinel-2
-* Sentinel-3
-* EOS MODIS
-* Landsat-8
+Collections of demonstration Jupyter notebooks:
+* [Sentinel-1](https://github.com/chris010970/sentinelhub/tree/main/notebooks/sentinel-1/README.md)
+* [Sentinel-2](https://github.com/chris010970/sentinelhub/tree/main/notebooks/sentinel-2/README.md)
+* [Sentinel-3](https://github.com/chris010970/sentinelhub/tree/main/notebooks/sentinel-3/README.md)
+* [EOS MODIS](https://github.com/chris010970/sentinelhub/tree/main/notebooks/modis/README.md)
+* [Landsat-8](https://github.com/chris010970/sentinelhub/tree/main/notebooks/landsat-8/README.md)
