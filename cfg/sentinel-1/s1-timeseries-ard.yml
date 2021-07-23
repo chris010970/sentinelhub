@@ -1,0 +1,57 @@
+request:
+    collection: SENTINEL1
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: ["VV", "VH", "localIncidenceAngle", "scatteringArea", "shadowMask" ],
+                        output: [{ // this is now an array since there are multiple output objects
+                          id: "vv",
+                          bands: 1,
+                          sampleType: "FLOAT32"
+                        }, {
+                          id: "vh",
+                          bands: 1,
+                          sampleType: "FLOAT32"
+                        }, {
+                          id: "inc_angle",
+                          bands: 1,
+                          sampleType: "FLOAT32"
+                        }, {
+                          id: "scatter_area",
+                          bands: 1,
+                          sampleType: "UINT8"
+                        }, {
+                          id: "shadow_mask",
+                          bands: 1,
+                          sampleType: "UINT8"
+                        } ]
+                    }
+                }
+                function evaluatePixel(samples) {
+                    return {
+                        vv: [ toDb(samples.VV) ],
+                        vh: [ toDb(samples.VH) ],
+                        inc_angle: [ samples.localIncidenceAngle ],
+                        scatter_area: [ samples.scatteringArea ],
+                        shadow_mask: [ samples.shadowMask ]
+                    };
+                }
+                // decibels
+                function toDb(linear) {
+                    return  ( linear > 0 ) ? 10 * Math.log( linear ) : -100
+                }
+    options:
+        processing:
+            orthorectify: yes
+            backCoeff: GAMMA0_TERRAIN
+responses:
+    vv: TIFF
+    vh: TIFF
+    inc_angle: TIFF
+    scatter_area: TIFF
+    shadow_mask: TIFF
+aoi:
+    pathname: <path_to_aoi_file>
+    name: name
+    distance: 500

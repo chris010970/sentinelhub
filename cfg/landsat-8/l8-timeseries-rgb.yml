@@ -1,0 +1,25 @@
+request:
+    collection: LANDSAT8_L2
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            bands: ["B02", "B03", "B04"],
+                            units: ["reflectance", "reflectance", "reflectance"] 
+                        }],
+                        output: {
+                            bands: 3,
+                            sampleType: "FLOAT32"
+                        }
+                    };
+                }
+                function evaluatePixel(sample) {
+                    return [sample.B04, sample.B03, sample.B02];
+                }
+responses:
+    default: TIFF
+aoi:
+    pathname: <path-to-aoi-file>
+    name: name
+    distance: 500

@@ -1,0 +1,73 @@
+request:
+    collection: SENTINEL2_L2A
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {                
+                        input: [{
+                            bands:["B02", "B03", "B04", "AOT", "SCL", "SNW", "CLD", "sunAzimuthAngles", "sunZenithAngles", "viewAzimuthMean", "viewZenithMean"], units:"DN"
+                        }],
+                        output: [
+                            {id: "TrueColor", bands: 3, sampleType: SampleType.FLOAT32},
+                            {id: "AOT", bands: 1, sampleType: SampleType.FLOAT32},
+                            {id: "SCL", bands: 1, sampleType: SampleType.FLOAT32},
+                            {id: "SNW", bands: 1, sampleType: SampleType.FLOAT32},
+                            {id: "CLD", bands: 1, sampleType: SampleType.FLOAT32},
+                            {id: "SAA", bands: 1, sampleType: SampleType.FLOAT32},
+                            {id: "SZA", bands: 1, sampleType: SampleType.FLOAT32},
+                            {id: "VAM", bands: 1, sampleType: SampleType.FLOAT32},
+                            {id: "VZM", bands: 1, sampleType: SampleType.FLOAT32} ]
+                    }
+                }
+                function evaluatePixel( sample ) {
+                    var truecolor = [sample.B04, sample.B03, sample.B02]
+                    var aot = [sample.AOT]
+                    var scl = [sample.SCL]
+                    var snw = [sample.SNW]
+                    var cld = [sample.CLD]
+                    var saa = [sample.sunAzimuthAngles]
+                    var sza = [sample.sunZenithAngles]
+                    var vam = [sample.viewAzimuthMean]
+                    var vzm = [sample.viewZenithMean]
+                    return {
+                        TrueColor: truecolor, 
+                        AOT: aot,
+                        SCL: scl,
+                        SNW: snw,
+                        CLD: cld,
+                        SAA: saa,
+                        SZA: sza,
+                        VAM: vam,
+                        VZM: vzm
+                    }
+                }
+catalog:    
+        query: |
+                {
+                    "eo:cloud_cover": {
+                        "lt": 30
+                    }
+                }
+        fields: |
+                {
+                    "include": [
+                        "id",
+                        "properties.datetime",
+                        "properties.eo:cloud_cover"
+                    ],
+                    "exclude": []
+                }
+responses:
+    TrueColor: TIFF
+    AOT: TIFF
+    SCL: TIFF
+    SNW: TIFF
+    CLD: TIFF
+    SAA: TIFF
+    SZA: TIFF
+    VAM: TIFF
+    VZM: TIFF
+aoi:
+    pathname: <path_to_aoi_file>
+    name: name
+    distance: 500

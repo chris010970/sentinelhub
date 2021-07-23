@@ -1,0 +1,28 @@
+request:
+    collection: LANDSAT8_L2
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            bands: ["B04", "B05", "B06"],
+                            units: ["reflectance", "reflectance", "reflectance"] 
+                        }],
+                        output: {
+                            bands: 1,
+                            sampleType: "FLOAT32"
+                        }
+                    };
+                }
+                function evaluatePixel(sample) {
+                    let ndvi = ( sample.B05 - sample.B04) / ( sample.B05 + sample.B04 );
+                    let ndbi = ( sample.B06 - sample.B05) / ( sample.B06 + sample.B05 );
+                    let BU = (ndvi - ndbi)
+                    return[ BU ];                
+                }
+responses:
+    default: TIFF
+aoi:
+    pathname: <path-to-aoi-file>
+    name: name
+    distance: 500

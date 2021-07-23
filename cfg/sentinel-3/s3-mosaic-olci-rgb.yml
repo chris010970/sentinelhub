@@ -1,0 +1,22 @@
+request:
+    collection: SENTINEL3_OLCI
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                  return {
+                    input: ["B08", "B06", "B04"],
+                    output: { 
+                      bands: 3,
+                      sampleType: "AUTO" // default value - scales the output values from [0,1] to [0,255].
+                    }
+                  }
+                }
+                function evaluatePixel(sample) {
+                  return [2.5 * sample.B08, 2.5 * sample.B06, 2.5 * sample.B04]
+                }
+responses:
+    default: TIFF
+aoi:
+    pathname: <pathname_to_aoi_file>
+    field: name
+    distance: 500

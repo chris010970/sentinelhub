@@ -1,0 +1,22 @@
+request:
+    collection: SENTINEL3_SLSTR
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [ "S8" ],
+                        output: {
+                            bands: 1,
+                            sampleType: SampleType.UINT16
+                        }
+                    };
+                }
+                function evaluatePixel(sample) {
+                    return [ sample.S8 - 273 ]
+                }       
+responses:
+    default: TIFF
+aoi:
+    pathname: <pathname_to_aoi_file>
+    field: name
+    distance: 500

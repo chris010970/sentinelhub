@@ -1,0 +1,23 @@
+request:
+    collection: SENTINEL3_SLSTR
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: ["F1"],
+                        output: { 
+                            bands: 3,
+                        }
+                    }
+                }
+                // Create a Red gradient visualiser from 274-500 K
+                var viz = ColorGradientVisualizer.createRedTemperature(274,500)
+                function evaluatePixel(sample) {
+                    return viz.process(sample.F1)
+                }
+responses:
+    default: TIFF
+aoi:
+    pathname: <pathname_to_aoi_file>
+    field: name
+    distance: 500

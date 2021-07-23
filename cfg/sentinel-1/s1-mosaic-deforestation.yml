@@ -1,0 +1,71 @@
+request:
+    collection: SENTINEL1
+    evalscript: |
+                //VERSION=3
+                var GAIN = 2.5;
+                var WATER_LIMIT = 0.1;
+                var FOREST_LIMIT = 0.2;
+                var INVERSE_FACTOR = 25;
+                var GREEN_GRADIENT = [
+                    [1.000, 0x80F300],
+                    [0.500, 0x406600],
+                    [0.000, 0x003300]
+                ]
+                var RED_GRADIENT = [
+                    [1.000, 0xFFFFFF],
+                    [0.525, 0xFF8600],
+                    [0.300, 0xFF6E00],
+                    [0.250, 0xAE0000],
+                    [0.000, 0x000000]
+                ];
+                let GREEN_VIZ = new ColorGradientVisualizer(GREEN_GRADIENT, 0, 1);
+                let RED_VIZ = new ColorGradientVisualizer(RED_GRADIENT, 0, 1);
+                
+                function setup() {
+                    return {
+                        input: [{
+                            bands: [ "VV", "VH" ]
+                        }],
+                        output: { bands: 3 }
+                    }
+                }
+                function evaluatePixel(sample) {
+                    // variables
+                    var vv = sample.VV;
+                    var vh = sample.VH;
+                    var area = vv * vh;
+                    var v_len = Math.sqrt(vv * vv + vh * vh);
+                    var v_angle_weighted = 0;
+                    
+                    // compute vector direction
+                    if (vv > 0) {
+                        v_angle_weighted = Math.atan(vh/vv) / (Math.PI / 2);
+                    }
+                    // compute vector length
+                    var v_len_inverse = 0;
+                    if (v_len > 0) {
+                        v_len_inverse = 1 / (INVERSE_FACTOR * v_len);
+                    }
+                    // apply threshold
+                    if (v_len < WATER_LIMIT) {
+                        return [0];
+                    } else if (v_len > FOREST_LIMIT) {
+                        var index = GAIN * v_len - v_angle_weighted;
+                        return GREEN_VIZ.process(index);
+                    } else {
+                        var index = GAIN * v_len_inverse + v_angle_weighted;
+                        return RED_VIZ.process(index);
+                    }
+                }
+    options:
+        processing:
+            orthorectify: yes
+            demInstance: COPERNICUS_30        
+    mosaic:
+        order: mostRecent    
+responses:
+    default: TIFF
+aoi:
+    pathname: <path_to_aoi_file>
+    name: name
+    distance: 500

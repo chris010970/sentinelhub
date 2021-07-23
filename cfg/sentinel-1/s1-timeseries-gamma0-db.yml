@@ -1,0 +1,54 @@
+request:
+    collection: SENTINEL1
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: ["VV", "VH" ],
+                        output: [{ // this is now an array since there are multiple output objects
+                          id: "vv",
+                          bands: 1,
+                          sampleType: "FLOAT32"
+                        }, {
+                          id: "vh",
+                          bands: 1,
+                          sampleType: "FLOAT32"
+                        }, {
+                          id: "vv_vis",
+                          bands: 1,
+                          sampleType: "FLOAT32"
+                        }, {
+                          id: "vh_vis",
+                          bands: 1,
+                          sampleType: "FLOAT32"
+                        } ]
+                    }
+                }
+                function evaluatePixel(samples) {
+                    return {
+                        vv: [ toDb(samples.VV) ],
+                        vh: [ toDb(samples.VH) ],
+                        vv_vis: [ toDb_visual(samples.VV) ],
+                        vh_vis: [ toDb_visual(samples.VH) ]                        
+                    };
+                }
+                // decibels
+                function toDb(linear) {
+                    return  ( linear > 0 ) ? 10 * Math.log( linear ) : -100
+                }
+                // visualizes decibels from -20 to 0
+                function toDb_visual(linear) {
+                    return Math.max(0, Math.log(linear) * 0.21714724095 + 1)
+                }
+    options:
+        processing:
+            backCoeff: GAMMA0_ELLIPSOID
+responses:
+    vv: TIFF
+    vh: TIFF
+    vv_vis: TIFF
+    vh_vis: TIFF
+aoi:
+    pathname: <path_to_aoi_file>
+    name: name
+    distance: 500

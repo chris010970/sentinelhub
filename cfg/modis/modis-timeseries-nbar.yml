@@ -1,0 +1,25 @@
+request:
+    collections: MODIS
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            bands: ["B01", "B02", "B03", "B04", "B05", "B06", "B07" ],
+                            units: ["reflectance", "reflectance", "reflectance", "reflectance", "reflectance", "reflectance", "reflectance" ] 
+                        }],
+                        output: {
+                            bands: 7,
+                            sampleType: "FLOAT32"
+                        }
+                    };
+                }
+                function evaluatePixel(sample) {
+                    return [sample.B01, sample.B02, sample.B03, sample.B04, sample.B05, sample.B06, sample.B07 ];
+                }
+responses:
+    default: TIFF
+aoi:
+    pathname: <path-to-aoi-file>
+    name: name
+    distance: 500

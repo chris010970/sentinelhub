@@ -1,0 +1,59 @@
+request:
+    collection: SENTINEL2_L2A
+    evalscript: |
+                //VERSION=3              
+                // color ramps
+                var colorRamp1 = [
+                    [0, 0xFFFFFF],
+                    [1, 0x008000]
+                ];
+                var colorRamp2 = [
+                    [0, 0xFFFFFF],
+                    [1, 0x0000CC]
+                ];
+                let viz1 = new ColorRampVisualizer(colorRamp1);
+                let viz2 = new ColorRampVisualizer(colorRamp2);
+                
+                function setup() {
+                    return {
+                        input: [{
+                            bands: [ "B03", "B08" ],
+                        }],
+                        output: {
+                            bands: 3,
+                        }
+                    }
+                }                
+                function evaluatePixel(samples) {
+                    // compute ndwi: (B03 - B08) / (B03 + B08)
+                    var denom = (samples.B03 + samples.B08)
+                    var val = (samples.B03 - samples.B08) / denom
+                    
+                    if (val < -0) {
+                        return viz1.process(-val);
+                    } else {
+                        return viz2.process(Math.sqrt(Math.sqrt(val)));
+                    }
+                }
+    catalog:    
+        query: |
+                {
+                    "eo:cloud_cover": {
+                        "lt": 5
+                    }
+                }
+        fields: |
+                {
+                    "include": [
+                        "id",
+                        "properties.datetime",
+                        "properties.eo:cloud_cover"
+                    ],
+                    "exclude": []
+                }   
+responses:
+    default: TIFF
+aoi:
+    pathname: 'C:\Users\Chris.Williams\Desktop\IDPS_dataset_phase2_version4\IDPS_dataset_phase2_version4.shp'    
+    field: name
+    distance: 500
