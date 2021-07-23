@@ -1,5 +1,5 @@
 # sentinelhub
-Demonstration of multi-faceted capabilities of [Sentinel Hub](https://www.sentinel-hub.com/) in Python development environment - includes implementation of [Process API](https://docs.sentinel-hub.com/api/latest/api/process/) client linked with functionality of the Singerise [sentinelhub-py] (https://sentinelhub-py.readthedocs.io/en/latest/) Python package.
+Demonstration of multi-faceted capabilities of [Sentinel Hub](https://www.sentinel-hub.com/) in Python development environment - includes implementation of [Process API](https://docs.sentinel-hub.com/api/latest/api/process/) client linked with functionality of the Singerise [sentinelhub-py](https://sentinelhub-py.readthedocs.io/en/latest/) Python package.
 
 [Sentinel Hub](https://www.sentinel-hub.com/) is a multi-spectral and multi-temporal big data satellite imagery service, capable of fully automated archiving, real-time processing and distribution of remote sensing data and related EO products. Leveraging Sentinel-Hub APIs, users may programmatically retrieve satellite imagery satisfying customisable spatial and temporal constraints from ESA Data and Information Access Service (DIAS) servers in a matter of seconds.
 
@@ -13,9 +13,9 @@ product evaluation code based on custom scripts taken from [Sentinel-Hub example
 
 Example Sentinel-Hub custom scripts may be interactively evaluated in [EO Browser](https://apps.sentinel-hub.com/eo-browser) and [Sentinel Playground](https://apps.sentinel-hub.com/sentinel-playground/) browser applications.
 
-Jupyter notebook example collections:
-* Sentinel-1
-* Sentinel-2
-* Sentinel-3
-* EOS MODIS
-* Landsat-8
+Collections of demonstration Jupyter notebooks:
+* [Sentinel-1](https://github.com/chris010970/sentinelhub/tree/main/notebooks/sentinel-1)
+* [Sentinel-2](https://github.com/chris010970/sentinelhub/tree/main/notebooks/sentinel-2)
+* [Sentinel-3](https://github.com/chris010970/sentinelhub/tree/main/notebooks/sentinel-3)
+* [EOS MODIS](https://github.com/chris010970/sentinelhub/tree/main/notebooks/modis)
+* [Landsat-8](https://github.com/chris010970/sentinelhub/tree/main/notebooks/landsat-8)
