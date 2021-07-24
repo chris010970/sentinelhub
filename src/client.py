@@ -52,10 +52,6 @@ class ShClient:
         self._request = config.request
         self._responses = config.responses
 
-        # ensure collections encoded as list
-        if not isinstance( self._request.collections, list ):
-            self._request.collections = [ self._request.collections ]
-
         return
 
 
@@ -207,16 +203,11 @@ class ShClient:
 
             # png, jpeg to follow
 
-        # populate input data objects
-        input_data = []
-        for collection in self._request.collections:
-            input_data.append( self.getInputData( collection, timeframe ) )
-
         # construct request
         return  SentinelHubRequest(
                     data_folder=data_path,
                     evalscript=self._request.evalscript,
-                    input_data=input_data,
+                    input_data=self.getInputData( timeframe ),
                     responses=responses,
                     bbox=bbox,
                     size=self.getBoxDimensions( bbox, resolution ),
@@ -248,7 +239,7 @@ class ShClient:
         if root_path is not None:
 
             # unique path based on collection name and timestamp
-            data_path = os.path.join( root_path, '_'.join( self._request.collections ).lower() )
+            data_path = os.path.join( root_path, self._request.collection.lower() )
             data_path = os.path.join( data_path, timestamp.strftime( '%Y%m%d_%H%M%S' ) )
 
         return data_path
@@ -265,7 +256,7 @@ class ShClient:
         if root_path is not None:
 
             # unique path based on collection name and timestamp
-            data_path = os.path.join( root_path, '_'.join( self._request.collections ).lower() )
+            data_path = os.path.join( root_path, self._request.collection.lower() )
             data_path = os.path.join( data_path, timeframe[ 'start' ].strftime( '%Y%m%d' ) + '_' + timeframe[ 'end' ].strftime( '%Y%m%d' ) )
 
         return data_path
@@ -340,7 +331,7 @@ class ShClient:
         return fields
 
 
-    def getInputData( self, collection, timeframe ):
+    def getInputData( self, timeframe ):
 
         """
         get fields to populate input data structure
@@ -362,8 +353,8 @@ class ShClient:
                 if options.get( arg ) is not None:
                     other_args[ arg ] = dict ( options.get( arg ) )
 
-        return  SentinelHubRequest.input_data(
-                        data_collection=DataCollection[ collection ],
+        return [ SentinelHubRequest.input_data(
+                        data_collection=DataCollection[ self._request.collection ],
                         time_interval=self.getTimeInterval( timeframe ),
                         mosaicking_order=mosaic_order if mosaic_order is not None else 'mostRecent',
-                        other_args=other_args if bool ( other_args ) else None )
+                        other_args=other_args if bool ( other_args ) else None ) ]

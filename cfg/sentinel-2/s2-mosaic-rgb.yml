@@ -1,5 +1,5 @@
 request:
-    collections: SENTINEL2_L2A
+    collection: SENTINEL2_L2A
     evalscript: |
                 //VERSION=3
                 function setup() {

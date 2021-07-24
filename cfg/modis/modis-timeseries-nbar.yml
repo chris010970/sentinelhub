@@ -1,5 +1,5 @@
 request:
-    collections: MODIS
+    collection: MODIS
     evalscript: |
                 //VERSION=3
                 function setup() {
