@@ -32,7 +32,7 @@ def parseArguments(args=None):
 
     # mandatory args
     parser.add_argument('config_file', action='store', help='yaml configuration file' )
-    parser.add_argument('resolution', type=int, action='store', help='spatial resolution (metres)' )
+    parser.add_argument('resolution', type=float, action='store', help='spatial resolution (metres)' )
     parser.add_argument('-o', '--out_path', action='store', help='root directory for output files' )
 
     # filter options
@@ -40,8 +40,9 @@ def parseArguments(args=None):
     parser.add_argument('-e','--end_datetime', type=validDateTimeArgument, help='end  acquisition datetime', default=None )    
     parser.add_argument('-a','--aois', nargs='+', help='aoi list', default=None )
 
+    parser.add_argument('--max_downloads', type=int, help='max compliant downloads for aoi', default=100 )
     parser.add_argument('--overwrite', action='store_true', help='overwrite existing files' )
-    parser.add_argument('--mosaic', action='store_true', help='generate mosiac' )
+    parser.add_argument('--mosaic', action='store_true', help='generate mosaic' )
 
     return parser.parse_args(args)
 
