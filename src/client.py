@@ -94,7 +94,7 @@ class ShClient:
         return timestamps
 
 
-    def getTimeSeries ( self, bbox, timeframe, resolution, out_path=None, timestamps=None ):
+    def getTimeSeries ( self, bbox, timeframe, resolution, out_path=None, timestamps=None, max_downloads=100 ):
 
         """
         get time series imagery satisfying filtering conditions
@@ -107,6 +107,7 @@ class ShClient:
             timestamps = self.getTimeStamps( bbox, timeframe )
 
         # for each scene timestamp    
+        timestamps = timestamps[ : max_downloads ]
         for timestamp in timestamps:
 
             # construct new request covering 1 hour time slice

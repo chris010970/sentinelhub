@@ -56,7 +56,8 @@ class Extractor:
                     response = self._client.getTimeSeries(  bbox, 
                                                         timeframe,
                                                         args.resolution, 
-                                                        out_path=os.path.join( args.out_path, aoi.name ) )
+                                                        out_path=os.path.join( args.out_path, aoi.name ),
+                                                        max_downloads=args.max_downloads )
 
                 print ( response )
 
