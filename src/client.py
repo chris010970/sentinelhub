@@ -110,24 +110,39 @@ class ShClient:
         timestamps = timestamps[ : max_downloads ]
         for timestamp in timestamps:
 
-            # construct new request covering 1 hour time slice
-            timeframe = { 'start' : ( timestamp - self._delta ), 'end' : ( timestamp + self._delta ) }
-            requests.append (   self.getRequest( bbox, 
-                                timeframe, 
-                                resolution, 
-                                data_path=self.getDataPath( out_path, timestamp ) ) )
+            # check data path does not already exist
+            data_path = self.getDataPath( out_path, timestamp )
+            if data_path is None or not os.path.exists( data_path ):
 
-        # setup download requests
-        client = SentinelHubDownloadClient( config=self._config )
-        downloads = [ request.download_list[0] for request in requests ]
+                # construct new request covering 1 hour time slice
+                timeframe = { 'start' : ( timestamp - self._delta ), 'end' : ( timestamp + self._delta ) }
+                requests.append (   self.getRequest( bbox, 
+                                    timeframe, 
+                                    resolution, 
+                                    data_path=data_path ) )
 
-        # download data - parse into dict if required
-        data = client.download( downloads )
-        if not isinstance( data [ 0 ], dict ):
-            data = { 'default' : data }
+            else:
+               
+                # path already exists
+                if data_path is not None:
+                    print ( f'... path already exists: {data_path}' )
+
+
+        # check minimum of one valid request
+        data = None
+        if len( requests ) > 0:
+
+            # setup download requests
+            client = SentinelHubDownloadClient( config=self._config )
+            downloads = [ request.download_list[0] for request in requests ]
+
+            # download data - parse into dict if required
+            data = client.download( downloads )
+            if not isinstance( data [ 0 ], dict ):
+                data = { 'default' : data }
 
         # parse responses into dataframe        
-        return Response ( pd.DataFrame.from_dict( data ).assign( time=timestamps ), bbox, resolution )
+        return None if data is None else Response ( pd.DataFrame.from_dict( data ).assign( time=timestamps ), bbox, resolution )
 
 
     def getMosaics ( self, bbox, timeframes, resolution, out_path=None ):
@@ -142,22 +157,36 @@ class ShClient:
         requests = []
         for timeframe in timeframes:
 
-            # create and forward request
-            requests.append( self.getRequest(   bbox, 
-                                                timeframe, 
-                                                resolution, 
-                                                data_path=self.getMosaicDataPath( out_path, timeframe ) ) )
+            # check data path does not already exist
+            data_path = self.getMosaicDataPath( out_path, timeframe )
+            if data_path is None or not os.path.exists( data_path ):
 
-        # download datasets
-        client = SentinelHubDownloadClient( config=self._config )
-        downloads = [ request.download_list[0] for request in requests ]
+                # create and forward request
+                requests.append( self.getRequest(   bbox, 
+                                                    timeframe, 
+                                                    resolution, 
+                                                    data_path=data_path ) )
+            else:
+                
+                # path already exists
+                if data_path is not None:
+                    print ( f'... path already exists: {data_path}' )
 
-        # download data - parse into dict if required
-        data = client.download( downloads )
-        if not isinstance( data [ 0 ], dict ):
-            data = { 'default' : data }
 
-        return Response ( pd.concat( [ pd.DataFrame.from_dict( data ), pd.DataFrame.from_dict( timeframes ) ], axis=1 ), bbox, resolution )
+        # check minimum of one valid request
+        data = None
+        if len( requests ) > 0:
+
+            # download datasets
+            client = SentinelHubDownloadClient( config=self._config )
+            downloads = [ request.download_list[0] for request in requests ]
+
+            # download data - parse into dict if required
+            data = client.download( downloads )
+            if not isinstance( data [ 0 ], dict ):
+                data = { 'default' : data }
+
+        return None if data is None else Response ( pd.concat( [ pd.DataFrame.from_dict( data ), pd.DataFrame.from_dict( timeframes ) ], axis=1 ), bbox, resolution )
         
 
     def getRecords( self, bbox, timeframe ):

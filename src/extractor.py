@@ -1,9 +1,13 @@
 import os
+import re
 import ogr
 import json
+import shutil
 import pandas as pd
 import geopandas as gpd
 
+from glob import glob
+from pathlib import Path
 from shapely.geometry import shape
 
 from aoi import Aoi
@@ -59,7 +63,10 @@ class Extractor:
                                                         out_path=os.path.join( args.out_path, aoi.name ),
                                                         max_downloads=args.max_downloads )
 
-                print ( response )
+
+                # rename / move output files - if any
+                self.moveOutputFiles( aoi, args.out_path )
+
 
         return
 
@@ -95,3 +102,37 @@ class Extractor:
             aois.clear()
 
         return gpd.GeoDataFrame( aois, crs='EPSG:4326', geometry='geometry' ) if len( aois ) > 0 else None
+
+
+    def moveOutputFiles( self, aoi, out_path ):
+
+        """
+        move images into datetime folder 
+        """
+
+        if out_path is not None:
+
+            # look for request outputs
+            pathnames = glob( os.path.join( out_path, '**/response.tiff' ), recursive=True )
+            for pathname in pathnames:
+
+                # locate datetime folder
+                m = re.search( '[0-9]{8}_[0-9]{6}([0-9]{2})?', os.path.dirname( pathname ) )
+                root_path = pathname[ : m.end() ]
+
+                # move image into datetime folder with unique name
+                shutil.move(    pathname, 
+                                os.path.join( root_path, '{aoi}_{datetime}.tif'.format ( aoi=aoi.name, datetime=str( m.group(0) ) ) )
+                )
+
+                # move remaining files to datetime folder
+                for f in Path( os.path.dirname( pathname ) ).glob('*.*'):
+                    shutil.move( f, os.path.join( root_path, os.path.basename( f )  ) )
+
+                try:
+                    # remove request-id specific sub-path
+                    os.rmdir ( os.path.dirname( pathname ) ) 
+                except:
+                    print ( 'Unable to remove folder {path}'.format( path=os.path.dirname( pathname ) ) )
+
+        return
