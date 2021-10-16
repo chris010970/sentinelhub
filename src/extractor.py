@@ -11,8 +11,7 @@ from shapely.geometry import shape
 
 from aoi import Aoi
 from osgeo import ogr
-from client_update import ShClient
-#from client import ShClient
+from client import ShClient
 
 class Extractor:
 
