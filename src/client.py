@@ -50,6 +50,7 @@ class ShClient:
 
         # set configuration 
         self._request = config.request
+        self._inputs = self._request.inputs 
         self._responses = config.responses
 
         return
@@ -65,7 +66,7 @@ class ShClient:
         return DataCollection.get_available_collections()
 
 
-    def getTimeStamps( self, bbox, timeframe ):
+    def getDatasetTimeStamps( self, _input, bbox, timeframe ):
 
         """
         get timestamps of scenes collocated with bbox acquired between timeframe
@@ -75,16 +76,16 @@ class ShClient:
         timestamps = []
 
         # get catalog
-        catalog = self.getCatalog()
+        catalog = self.getCatalog( _input.collection )
         if catalog is not None:
         
             # execute search
             iterator = catalog.search (
-                        DataCollection[ self._request.collection ],
+                        DataCollection[ _input.collection ],
                         bbox=bbox,
                         time=self.getTimeInterval( timeframe ),
-                        query=self.getQuery( self._request.get( 'catalog' ) ),
-                        fields=self.getFields( self._request.get( 'catalog' ) )
+                        query=self.getQuery( _input.get( 'catalog' ) ),
+                        fields=self.getFields( _input.get( 'catalog' ) )
             )
 
             # filter timestamps into +- 1 hour groupings
@@ -104,18 +105,28 @@ class ShClient:
 
         # use timeframe to generate timestamp list by default
         if timestamps is None:
-            timestamps = self.getTimeStamps( bbox, timeframe )
+            timestamps = self.getDatasetTimeStamps( self._inputs[ 0 ], bbox, timeframe )
 
         # for each scene timestamp    
         timestamps = timestamps[ : max_downloads ]
         for timestamp in timestamps:
 
             # check data path does not already exist
-            data_path = self.getDataPath( out_path, timestamp )
+            collection = self._inputs[ 0 ].collection if len( self._inputs ) == 1 else 'FUSION'
+
+            data_path = self.getDataPath( out_path, collection, timestamp )
             if data_path is None or not os.path.exists( data_path ):
 
+                # initialise timeframes
+                timeframe = {}
+                for _input in self._inputs:
+
+                    # compute temporal window around timestamp
+                    start_lag, end_lag = self.getLag( _input )
+                    timeframe[ _input.collection ] = {  'start' : ( timestamp - ( self._delta * start_lag ) ), 
+                                                        'end' : ( timestamp + ( self._delta * end_lag ) ) }
+
                 # construct new request covering 1 hour time slice
-                timeframe = { 'start' : ( timestamp - self._delta ), 'end' : ( timestamp + self._delta ) }
                 requests.append (   self.getRequest( bbox, 
                                     timeframe, 
                                     resolution, 
@@ -233,11 +244,20 @@ class ShClient:
 
             # png, jpeg to follow
 
+        # initialise input data
+        input_data = [];         
+        for _input in self._inputs:
+
+            # append data to list
+            collection = _input.collection
+            input_data.append( self.getInputData(   _input, 
+                                                    timeframe[ collection ] if collection in timeframe else timeframe ) )
+
         # construct request
         return  SentinelHubRequest(
                     data_folder=data_path,
                     evalscript=self._request.evalscript,
-                    input_data=self.getInputData( timeframe ),
+                    input_data=input_data,
                     responses=responses,
                     bbox=bbox,
                     size=self.getBoxDimensions( bbox, resolution ),
@@ -245,7 +265,28 @@ class ShClient:
         )
 
 
-    def getCatalog( self ):
+    def getLag( self, _input ):
+
+        """
+        initialise start and end lag
+        """
+
+        # default to 1 hour
+        start_lag = end_lag = 1
+        value = _input.get( 'lag' )
+        if value is not None:
+
+            # single value or comma separated
+            params=value.split(',')
+            start_lag = end_lag = int( params[ 0 ] )
+
+            if len( params ) > 1:
+                end_lag = int( params[ 1 ] )
+
+        return start_lag, end_lag
+
+
+    def getCatalog( self, collection ):
 
         """
         get catalog pertaining to data collection
@@ -253,12 +294,12 @@ class ShClient:
 
         # get catalog for collection
         return SentinelHubCatalog(
-            base_url=DataCollection[ self._request.collection ].service_url,
+            base_url=DataCollection[ collection ].service_url,
             config=self._config
         )
 
 
-    def getDataPath( self, root_path, timestamp ):
+    def getDataPath( self, root_path, collection, timestamp ):
 
         """
         return data path
@@ -269,7 +310,7 @@ class ShClient:
         if root_path is not None:
 
             # unique path based on collection name and timestamp
-            data_path = os.path.join( root_path, self._request.collection.lower() )
+            data_path = os.path.join( root_path, collection.lower() )
             data_path = os.path.join( data_path, timestamp.strftime( '%Y%m%d_%H%M%S' ) )
 
         return data_path
@@ -361,20 +402,20 @@ class ShClient:
         return fields
 
 
-    def getInputData( self, timeframe ):
+    def getInputData( self, _input, timeframe ):
 
         """
         get fields to populate input data structure
         """
 
         # evaluate mosaicking order
-        options = self._request.get( 'mosaic' )
+        options = _input.get( 'mosaic' )
         mosaic_order = options.get( 'order' ) if options is not None else None
 
         # evaluate optional args
         other_args = {}
 
-        options = self._request.get( 'options' )
+        options = _input.get( 'options' )
         if options is not None:
 
             # filter and processing optional args
@@ -383,8 +424,8 @@ class ShClient:
                 if options.get( arg ) is not None:
                     other_args[ arg ] = dict ( options.get( arg ) )
 
-        return [ SentinelHubRequest.input_data(
-                        data_collection=DataCollection[ self._request.collection ],
-                        time_interval=self.getTimeInterval( timeframe ),
-                        mosaicking_order=mosaic_order if mosaic_order is not None else 'mostRecent',
-                        other_args=other_args if bool ( other_args ) else None ) ]
+        return SentinelHubRequest.input_data(   data_collection=DataCollection[ _input.collection ],
+                                                identifier=_input.get( 'id' ),
+                                                time_interval=self.getTimeInterval( timeframe ),
+                                                mosaicking_order=mosaic_order if mosaic_order is not None else 'mostRecent',
+                                                other_args=other_args if bool ( other_args ) else None )
