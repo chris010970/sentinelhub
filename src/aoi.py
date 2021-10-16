@@ -25,7 +25,7 @@ class Aoi:
             """
             
             # switch on geometry type            
-            if geom.geom_type is 'Point':
+            if geom.geom_type == 'Point':
 
                 # convert points to bbox 
                 distance = config.get( 'distance', 1000 )
@@ -128,7 +128,7 @@ class Aoi:
         l = Aoi.getLetter( latlon )
 
         # create projections
-        proj = { 'geo' : pyproj.Proj('epsg:4326', ellps='WGS84') }
+        proj = { 'geo' : pyproj.Proj( init='epsg:4326', ellps='WGS84') }
 
         if latlon[ 1 ] > 0:
             proj[ 'utm' ] =  pyproj.Proj(proj='utm', zone=z, ellps='WGS84')

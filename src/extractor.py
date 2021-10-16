@@ -1,6 +1,5 @@
 import os
 import re
-import ogr
 import json
 import shutil
 import pandas as pd
@@ -11,7 +10,9 @@ from pathlib import Path
 from shapely.geometry import shape
 
 from aoi import Aoi
-from client import ShClient
+from osgeo import ogr
+from client_update import ShClient
+#from client import ShClient
 
 class Extractor:
 
@@ -38,12 +39,12 @@ class Extractor:
             timeframe = { 'start' : args.start_datetime, 'end' : args.end_datetime }
             for aoi in aois.itertuples():
 
-                # get catalogue records
-                # df = self._client.getRecords( aoi.geometry.bounds, timeframe )
-                # print ( df )
-
                 # create bounding box in mercator projection
                 bbox = self._client.getBoundingBox( aoi.geometry.bounds )
+
+                # get catalogue records
+                # df = self._client.getRecords( bbox, timeframe )
+                # print ( df )
 
                 # mosaic mode ?
                 if args.mosaic:
