@@ -1,5 +1,4 @@
 request:
-    collection: SENTINEL1
     evalscript: |
                 //VERSION=3
                 function setup() {
@@ -41,10 +40,12 @@ request:
                 function toDb(linear) {
                     return  ( linear > 0 ) ? 10 * Math.log( linear ) : -100
                 }
-    options:
-        processing:
-            orthorectify: yes
-            backCoeff: GAMMA0_TERRAIN
+    inputs:
+        - collection: SENTINEL1
+          options:
+            processing:
+                orthorectify: yes
+                backCoeff: GAMMA0_TERRAIN
 responses:
     vv: TIFF
     vh: TIFF
@@ -52,6 +53,6 @@ responses:
     scatter_area: TIFF
     shadow_mask: TIFF
 aoi:
-    pathname: <path_to_aoi_file>
+    pathname: <path-to-aoi-file>
     name: name
     distance: 500

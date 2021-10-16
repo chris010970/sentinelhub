@@ -1,5 +1,4 @@
 request:
-    collection: SENTINEL1
     evalscript: |
                 //VERSION=3
                 var GAIN = 2.5;
@@ -57,12 +56,14 @@ request:
                         return RED_VIZ.process(index);
                     }
                 }
-    options:
-        processing:
-            orthorectify: yes
-            demInstance: COPERNICUS_30        
-    mosaic:
-        order: mostRecent    
+    inputs:
+        - collection: SENTINEL1
+          options:
+            processing:
+                orthorectify: yes
+                demInstance: COPERNICUS_30        
+          mosaic:
+            order: mostRecent    
 responses:
     default: TIFF
 aoi:

@@ -1,5 +1,4 @@
 request:
-    collection: SENTINEL3_SLSTR
     evalscript: |
                 //VERSION=3
                 function setup() {
@@ -22,7 +21,9 @@ request:
                         heatmap: viz.process(sample.F1),
                         temperature: [ sample.F1 ],
                     }
-                }
+                }                
+    inputs:
+        - collection: SENTINEL3_SLSTR                
 responses:
     heatmap: TIFF
     temperature: TIFF

@@ -1,5 +1,4 @@
 request:
-    collection: SENTINEL2_L2A
     evalscript: |
                 //VERSION=3
                 function setup() {
@@ -48,8 +47,10 @@ request:
                     else if (max<0.6) return [0.06,0.33,0.04];
                     else return [0,0.27,0];
                 }
-    mosaic:
-        order: leastCC   
+    inputs:
+        - collection: SENTINEL2_L2A
+          mosaic:
+            order: leastCC   
 responses:
     default: TIFF
 aoi:

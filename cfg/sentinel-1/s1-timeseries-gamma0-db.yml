@@ -1,5 +1,4 @@
 request:
-    collection: SENTINEL1
     evalscript: |
                 //VERSION=3
                 function setup() {
@@ -40,8 +39,10 @@ request:
                 function toDb_visual(linear) {
                     return Math.max(0, Math.log(linear) * 0.21714724095 + 1)
                 }
-    options:
-        processing:
+    inputs:
+        - collection: SENTINEL1
+          options:
+            processing:
             backCoeff: GAMMA0_ELLIPSOID
 responses:
     vv: TIFF

@@ -1,5 +1,4 @@
 request:
-    collection: SENTINEL2_L2A
     evalscript: |
                 //VERSION=3
                 function setup() {
@@ -15,11 +14,13 @@ request:
                 function evaluatePixel(sample) {
                     return [sample.B04, sample.B03, sample.B02];
                 }
-    mosaic:
-        order: mostRecent    
+    inputs:
+        - collection: SENTINEL2_L2A
+          mosaic:
+            order: mostRecent    
 responses:
     default: TIFF
 aoi:
-    pathname: 'C:\Users\Chris.Williams\Desktop\IDPS_dataset_phase2_version4\IDPS_dataset_phase2_version4.shp'    
+    pathname: <path-to-aoi-file>   
     name: name
     distance: 500

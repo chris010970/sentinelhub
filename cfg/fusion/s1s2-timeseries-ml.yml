@@ -1,0 +1,63 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            datasource: "s1",
+                            bands: ["VV", "VH"]
+                        },
+                        {
+                            datasource: "s2_l2a",
+                            bands: ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B11", "B12" ],
+                        } ],
+                        output: {
+                            bands: 11, sampleType: SampleType.FLOAT32
+                        }
+                    }
+                }
+                // decibels
+                function toDb(linear) {
+                    return  ( linear > 0 ) ? 10 * Math.log( linear ) : -100
+                }
+                function evaluatePixel(samples) {
+                    var s1 = samples.s1[0]
+                    var s2 = samples.s2_l2a[0]
+
+                    return [ s2.B02, s2.B03, s2.B04, s2.B05, s2.B06, s2.B07, s2.B08, s2.B11, s2.B12, toDb( s1.VV ), toDb( s1.VH ) ]
+                }
+    inputs:
+        - collection: SENTINEL2_L2A
+          id: s2_l2a
+          options:
+            processing:
+                upsampling: BICUBIC 
+                downsampling: BILINEAR
+          catalog:    
+            query: |
+                {
+                    "eo:cloud_cover": {
+                        "lt": 5
+                    }
+                }
+            fields: |
+                {
+                    "include": [
+                        "id",
+                        "properties.datetime",
+                        "properties.eo:cloud_cover"
+                    ],
+                    "exclude": []
+                }   
+        - collection: SENTINEL1
+          id: s1
+          lag: 168, 24
+          processing:
+            orthorectify: yes
+            backCoeff: GAMMA0_TERRAIN
+responses:
+    default: TIFF
+aoi:
+    pathname: <path-to-aoi-file>
+    field: name
+    distance: 500

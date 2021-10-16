@@ -1,5 +1,4 @@
 request:
-    collection: SENTINEL3_OLCI
     evalscript: |
                 //VERSION=3
                 function setup() {
@@ -31,6 +30,8 @@ request:
 
                   return [RED, GREEN, BLUE];
                 }
+    inputs:
+        - collection: SENTINEL3_OLCI
 responses:
     default: TIFF
 aoi:

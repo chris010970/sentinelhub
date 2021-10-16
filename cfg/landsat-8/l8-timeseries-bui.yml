@@ -1,5 +1,4 @@
 request:
-    collection: LANDSAT8_L2
     evalscript: |
                 //VERSION=3
                 function setup() {
@@ -20,6 +19,8 @@ request:
                     let BU = (ndvi - ndbi)
                     return[ BU ];                
                 }
+    inputs:
+        - collection: LANDSAT_OT_L2
 responses:
     default: TIFF
 aoi:

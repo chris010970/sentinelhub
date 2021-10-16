@@ -1,5 +1,4 @@
 request:
-    collection: SENTINEL3_SLSTR
     evalscript: |
                 //VERSION=3
                 function setup() {
@@ -13,7 +12,9 @@ request:
                 }
                 function evaluatePixel(sample) {
                     return [ sample.S8 - 273 ]
-                }       
+                }                       
+    inputs:
+        - collection: SENTINEL3_SLSTR
 responses:
     default: TIFF
 aoi:

@@ -1,5 +1,4 @@
 request:
-    collection: SENTINEL2_L2A
     evalscript: |
                 //VERSION=3              
                 // color ramps
@@ -35,14 +34,16 @@ request:
                         return viz2.process(Math.sqrt(Math.sqrt(val)));
                     }
                 }
-    catalog:    
-        query: |
+    inputs:
+        - collection: SENTINEL2_L2A
+          catalog:    
+            query: |
                 {
                     "eo:cloud_cover": {
                         "lt": 5
                     }
                 }
-        fields: |
+            fields: |
                 {
                     "include": [
                         "id",
@@ -54,6 +55,6 @@ request:
 responses:
     default: TIFF
 aoi:
-    pathname: 'C:\Users\Chris.Williams\Desktop\IDPS_dataset_phase2_version4\IDPS_dataset_phase2_version4.shp'    
+    pathname: <path-to-aoi-file>  
     field: name
     distance: 500

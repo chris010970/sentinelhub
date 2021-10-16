@@ -1,5 +1,4 @@
 request:
-    collection: SENTINEL2_L2A
     evalscript: |
                 //VERSION=3
                 function setup() {
@@ -17,18 +16,20 @@ request:
                     //return [ sample.B04, sample.B03, sample.B02];
                     return [ sample.B02, sample.B03, sample.B04, sample.B05, sample.B06, sample.B07, sample.B08, sample.B11, sample.B12 ]
                 }
-    options:
-        processing:
-            upsampling: BICUBIC 
-            downsampling: BILINEAR
-    catalog:    
-        query: |
+    inputs:
+        - collection: SENTINEL2_L2A
+          options:
+            processing:
+                upsampling: BICUBIC 
+                downsampling: BILINEAR
+          catalog:    
+            query: |
                 {
                     "eo:cloud_cover": {
                         "lt": 5
                     }
                 }
-        fields: |
+            fields: |
                 {
                     "include": [
                         "id",
@@ -40,6 +41,6 @@ request:
 responses:
     default: TIFF
 aoi:
-    pathname: 'C:\Users\Chris.Williams\Desktop\Qat locations\qat_farms.shp'    
+    pathname: <path-to-aoi-file>
     name: name
     distance: 500

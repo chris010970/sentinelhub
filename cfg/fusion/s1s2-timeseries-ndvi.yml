@@ -79,6 +79,7 @@ request:
           id: s2_l2a
         - collection: SENTINEL1
           id: s1
+          lag: 168
           processing:
               orthorectify: yes
               backCoeff: GAMMA0_TERRAIN
@@ -88,6 +89,6 @@ responses:
     NDVI: TIFF
     SCL: TIFF
 aoi:
-    pathname: 'C:\Users\Chris.Williams\Desktop\IDPS_dataset_phase2_version4\IDPS_dataset_phase2_version4.shp'    
+    pathname: <path-to-aoi-file>
     field: name
     distance: 500

@@ -1,5 +1,4 @@
 request:
-    collection: SENTINEL1
     evalscript: |
                 //VERSION=3
                 function setup() {
@@ -40,10 +39,12 @@ request:
                 function toDb_visual(linear) {
                     return Math.max(0, Math.log(linear) * 0.21714724095 + 1)
                 }
-    options:
-        processing:
-            orthorectify: yes
-            backCoeff: GAMMA0_TERRAIN
+    inputs:
+        - collection: SENTINEL1
+          options:
+            processing:
+                orthorectify: yes
+                backCoeff: GAMMA0_TERRAIN
 responses:
     vv: TIFF
     vh: TIFF

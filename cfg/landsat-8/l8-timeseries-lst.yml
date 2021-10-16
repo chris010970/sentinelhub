@@ -1,5 +1,4 @@
 request:
-    collection: LANDSAT8
     evalscript: |
                 //VERSION=3 (auto-converted from 1)
                 //// STARTING OPTIONS
@@ -38,7 +37,6 @@ request:
                                 "B04",
                                 "B05",
                                 "B10",
-                                "B11"
                             ]
                         }],
                         output: {   
@@ -92,6 +90,8 @@ request:
                     }		
                     return [ LSTi ];
                 }
+    inputs:
+        - collection: LANDSAT_OT_L2
 responses:
     default: TIFF
 aoi:

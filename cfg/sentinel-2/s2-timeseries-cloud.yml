@@ -1,5 +1,4 @@
 request:
-    collection: SENTINEL2_L2A
     evalscript: |
                 //VERSION=3
                 function setup() {
@@ -41,14 +40,16 @@ request:
                         VZM: vzm
                     }
                 }
-catalog:    
-        query: |
+    inputs:
+        - collection: SENTINEL2_L2A
+          catalog:    
+            query: |
                 {
                     "eo:cloud_cover": {
                         "lt": 30
                     }
                 }
-        fields: |
+            fields: |
                 {
                     "include": [
                         "id",

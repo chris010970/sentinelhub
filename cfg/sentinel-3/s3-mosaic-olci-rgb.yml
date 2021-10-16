@@ -1,5 +1,4 @@
 request:
-    collection: SENTINEL3_OLCI
     evalscript: |
                 //VERSION=3
                 function setup() {
@@ -13,7 +12,9 @@ request:
                 }
                 function evaluatePixel(sample) {
                   return [2.5 * sample.B08, 2.5 * sample.B06, 2.5 * sample.B04]
-                }
+                }                
+    inputs:
+        - collection: SENTINEL3_OLCI
 responses:
     default: TIFF
 aoi:
