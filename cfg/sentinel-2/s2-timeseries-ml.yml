@@ -41,6 +41,6 @@ request:
 responses:
     default: TIFF
 aoi:
-    pathname: <path-to-aoi-file>
+    pathname: D:\SAC\Qat_locations\aoi.shp
     name: name
     distance: 500

@@ -21,10 +21,10 @@ from sentinelhub import filter_times
 from sentinelhub import geo_utils
 
 # app class
-from response import Response
+from .response import Response
 
 
-class ShClient:
+class Client:
 
     def __init__( self, config ):
 
@@ -429,3 +429,47 @@ class ShClient:
                                                 time_interval=self.getTimeInterval( timeframe ),
                                                 mosaicking_order=mosaic_order if mosaic_order is not None else 'mostRecent',
                                                 other_args=other_args if bool ( other_args ) else None )
+
+
+
+
+import os
+import yaml
+from munch import munchify
+
+# load cfg file using yaml parser
+cfg_file = 'C:\\Users\\crwil\\Documents\\GitHub\\biodiversity\\cfg\\s2-timeseries-reflectance.yml'
+with open( cfg_file, 'r' ) as f:
+    config = munchify( yaml.safe_load( f ) )
+
+# create instance of shclient class
+client = Client( config )
+
+extent = ( -0.36863101, 51.80157414, -0.36120527, 51.80552046 )
+bbox = client.getBoundingBox( extent )
+resolution = 10
+
+
+timeframes = []; year = 2020; interval = 10
+delta = timedelta(days=interval) - timedelta(seconds=1)
+
+# get timeframes
+start_dt = datetime( year, 1, 1, 0, 0, 0 )
+while start_dt.year == year:
+
+    end_dt = start_dt + delta
+    timeframes.append( { 'start' : start_dt, 'end' : end_dt } )
+
+    start_dt = end_dt + timedelta(seconds=1)
+
+
+
+# get S2 acquisitions between start / end dates satisfying filter conditions
+timestamps = client.getDatasetTimeStamps ( config.request.inputs[ 0 ], bbox, timeframes[ 0 ] )
+timestamps
+
+# get time series
+response = client.getTimeSeries ( bbox, timeframes[ 0 ], resolution )
+response
+
+

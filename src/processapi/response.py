@@ -27,7 +27,7 @@ class Response:
         self._resolution = resolution
 
         # get map coordinate vectors and extent
-        self._map_x, self._map_y = self.getMapCoordinates( bbox, resolution )
+        self._transform, self._map_x, self._map_y = self.getMapCoordinates( bbox, resolution )
         self._extent = [    np.amin( self._map_x ), 
                             np.amax( self._map_x ), 
                             np.amin( self._map_y ), 
@@ -52,7 +52,7 @@ class Response:
 
         # compute pixel to map transformation
         transform = bbox.get_transform_vector( resx=resolution, resy=resolution )
-        return ( transform[0] + image_x * transform[1] ), ( transform[3] + image_y * transform[5] )
+        return transform, ( transform[0] + image_x * transform[1] ), ( transform[3] + image_y * transform[5] )
 
 
     def convertToDataset( self, names=None ):
@@ -104,7 +104,7 @@ class Response:
         return ds
 
 
-    def plotColorMesh( self, name, osm_zoom=None, figsize=None, alpha=dict(), suptitle=None, cmap='jet', cbar_label=None, gridlines=True, scale=(20,20) ):
+    def plotColorMesh( self, name, osm_zoom=None, figsize=None, alpha=dict(), suptitle=None, cmap='jet', cbar_label=None, extent=None, gridlines=True, scale=(20,20) ):
 
         """
         plot time series
@@ -149,8 +149,15 @@ class Response:
         for idx, row in self._df.iterrows():
 
             # set extent and add geometry
-            grid[ idx ].set_extent( self._extent, crs=ccrs.epsg( int( self._bbox.crs.value )  ) )
-            grid[ idx ].set_title( row[ 'time' ].strftime( '%Y-%m-%d %H:%M:%S' ) )
+            if extent is None:
+                extent = self._extent
+
+            grid[ idx ].set_extent( extent, crs=ccrs.epsg( int( self._bbox.crs.value )  ) )
+            
+            if 'time' in self._df.columns:
+                grid[ idx ].set_title( row[ 'time' ].strftime( '%Y-%m-%d %H:%M:%S' ) )
+            else:
+                grid[ idx ].set_title( row[ 'start' ].strftime( '%Y-%m-%d' ) + ' - ' +  row[ 'end' ].strftime( '%Y-%m-%d' ) )
     
             # optionally add osm backdrop
             if osm_zoom is not None:
@@ -163,7 +170,6 @@ class Response:
                                             cmap=cmap,
                                             zorder=3,
                                             alpha=alpha.get( 'data', 0.4 ) )
-
 
             # solid cbar
             cbar = grid.cbar_axes[ idx ].colorbar( mesh )
@@ -194,7 +200,7 @@ class Response:
         return
 
 
-    def plotImages( self, name, osm_zoom=None, figsize=None, alpha=dict(), suptitle=None, gridlines=True, features=[], dpi=80.0, border=1, cmap=None ):
+    def plotImages( self, name=None, osm_zoom=None, figsize=None, alpha=dict(), suptitle=None, gridlines=True, features=[], interpolation='nearest', annotation=None, cmap=None, extent=None, scale=(20,20) ):
     
         # setup params
         plt.rc('font', size=10)   
@@ -204,13 +210,16 @@ class Response:
         request = cimgt.OSM()
 
         # pick a good figure size
-        if figsize is None:   
-            figsize = ( self._width + 2 * border) / float(dpi), ( ( self._height + 2 * border ) * len( self._df ) ) / float(dpi)
-
+        if figsize is None:
+            ratio = len( self._map_y ) / len( self._map_x )
+            figsize=( scale[ 0 ] * ratio, scale[ 1 ] * len( self._df ) * ratio )
+    
         # create figure and grid
         crs = ccrs.epsg( int( self._bbox.crs.value ) )
+        nrows = 1 if name is None else len( self._df )
+               
         fig, axes = plt.subplots(   figsize=figsize, 
-                                    nrows=len( self._df ), 
+                                    nrows=nrows, 
                                     ncols=1, 
                                     subplot_kw={'projection': crs },
                                     constrained_layout=True )
@@ -233,34 +242,52 @@ class Response:
             if osm_zoom is not None:
                 ax.add_image( request, osm_zoom )
 
-            # plot image
-            ax.imshow( row[ name ], 
-                        extent=self._extent, 
-                        origin='upper', 
-                        interpolation='nearest', 
-                        aspect='auto', 
-                        cmap=cmap,
-                        alpha=alpha.get( 'data', 0.4 ),
-                        zorder=10 )
+            # set extent and add geometry
+            if extent is None:
+                extent = self._extent
 
+            # plot image
+            if name is not None:
+                ax.imshow( row[ name ], 
+                            extent=extent, 
+                            origin='upper', 
+                            interpolation=interpolation, 
+                            aspect='auto', 
+                            cmap=cmap,
+                            alpha=alpha.get( 'data', 0.4 ),
+                            zorder=10 )
+                        
+            # plot additional annotation
+            if annotation is not None:                        
+                annotation[ 'features' ].plot(  ax=ax, 
+                                                facecolor=annotation.get( 'facecolor', 'cyan' ),
+                                                edgecolor=annotation.get( 'edgecolor' , 'black' ), 
+                                                linewidth=annotation.get( 'linewidth', 1 ),
+                                                alpha=annotation.get( 'alpha', 0.6 ),
+                                                transform=crs)
+            
             # plot optional features
             if 'coastlines' in features:
                 ax.coastlines(resolution='50m', color='black', linewidth=1)
 
             if 'borders' in features:
                 ax.borders(resolution='50m', color='black', linewidth=1)
-
+                
             # optionally plot gridlines
             if gridlines:
                 gl = ax.gridlines( draw_labels=True,
                                     linewidth=1, 
                                     color='gray', 
-                                    alpha=alpha.get( 'grid', 0.4 ), 
+                                    alpha=alpha.get( 'grid', 1.0 ), 
                                     linestyle=':')
 
                 # remove labels from top and right
                 gl.right_labels = gl.top_labels = False
-
+                
+            # single annotation image
+            if name is None:
+                break
+                   
         # show subplots
         plt.show()
         return
