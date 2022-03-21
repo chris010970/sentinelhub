@@ -1,0 +1,67 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            datasource: "byoc",
+                            bands: ["B1", "B2"],
+                        },
+                        {
+                            datasource: "s2_l2a",
+                            bands: [ "B02", "B03", "B04", "SCL" ],
+                        } ],
+                        output: [
+                            { id: "B1", bands: 1, sampleType: SampleType.UINT16 },
+                            { id: "TrueColor", bands: 3 },
+                            { id: "SCL", bands: 1, sampleType: SampleType.UINT16 } ]
+                    }
+                }
+                function evaluatePixel(samples) {  
+                
+                    var s1 = samples.byoc[0]
+                    var s2 = samples.s2_l2a[0]
+                
+                    var truecolor = [ s2.B04, s2.B03, s2.B02 ]
+                    var b1 = [ s1.B1 ]
+                    var scl = [ s2.SCL ] 
+                
+                    return {
+                        TrueColor: truecolor, 
+                        B1: b1,
+                        SCL: scl } 
+                }
+    inputs:
+        - collection: byoc-3d2a9be6-6c5b-4e7a-87d7-e6ea30e72f78
+          id: byoc
+        - collection: SENTINEL2_L2A
+          id: s2_l2a
+          options:
+            processing:
+                upsampling: BICUBIC 
+                downsampling: BILINEAR
+          catalog:    
+            query: |
+                {
+                    "eo:cloud_cover": {
+                        "lt": 5
+                    }
+                }
+            fields: |
+                {
+                    "include": [
+                        "id",
+                        "properties.datetime",
+                        "properties.eo:cloud_cover"
+                    ],
+                    "exclude": []
+                }   
+          lag: 168, 24
+responses:
+    TrueColor: TIFF
+    B1: TIFF
+    SCL: TIFF    
+aoi:
+    pathname: <path-to-aoi-file>
+    field: name
+    distance: 500

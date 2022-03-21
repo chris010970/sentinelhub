@@ -14,6 +14,7 @@ from sentinelhub import MimeType
 from sentinelhub import SentinelHubRequest
 from sentinelhub import SentinelHubDownloadClient
 from sentinelhub import DataCollection
+from sentinelhub import ByocCollection
 from sentinelhub import bbox_to_dimensions
 from sentinelhub import DownloadRequest
 from sentinelhub import SentinelHubCatalog
@@ -21,6 +22,7 @@ from sentinelhub import filter_times
 from sentinelhub import geo_utils
 
 # app class
+#from response import Response
 from .response import Response
 
 
@@ -66,6 +68,18 @@ class Client:
         return DataCollection.get_available_collections()
 
 
+    def getDataCollection( self, _input ):
+
+        """ 
+        return standard or byoc collection
+        """
+
+        if 'byoc-' in _input.collection:
+            return DataCollection.define_byoc( _input.collection.replace( 'byoc-', '' ) )
+        else:
+            return DataCollection[ _input.collection ]
+
+
     def getDatasetTimeStamps( self, _input, bbox, timeframe ):
 
         """
@@ -76,12 +90,12 @@ class Client:
         timestamps = []
 
         # get catalog
-        catalog = self.getCatalog( _input.collection )
+        catalog = self.getCatalog()
         if catalog is not None:
         
             # execute search
             iterator = catalog.search (
-                        DataCollection[ _input.collection ],
+                        self.getDataCollection( _input ),
                         bbox=bbox,
                         time=self.getTimeInterval( timeframe ),
                         query=self.getQuery( _input.get( 'catalog' ) ),
@@ -112,7 +126,7 @@ class Client:
         for timestamp in timestamps:
 
             # check data path does not already exist
-            collection = self._inputs[ 0 ].collection if len( self._inputs ) == 1 else 'FUSION'
+            collection =  self.getDataCollection( self._inputs[ 0 ] ) if len( self._inputs ) == 1 else 'FUSION'
 
             data_path = self.getDataPath( out_path, collection, timestamp )
             if data_path is None or not os.path.exists( data_path ):
@@ -200,34 +214,6 @@ class Client:
         return None if data is None else Response ( pd.concat( [ pd.DataFrame.from_dict( data ), pd.DataFrame.from_dict( timeframes ) ], axis=1 ), bbox, resolution )
         
 
-    def getRecords( self, bbox, timeframe ):
-
-        """
-        get catalog records satisfying filter conditions
-        """
-
-        df = None
-
-        # get catalog
-        catalog = self.getCatalog()
-        if catalog is not None:
-        
-            # execute search
-            iterator = catalog.search (
-                        DataCollection[ self._request.collection ],
-                        bbox=bbox,
-                        time=self.getTimeInterval( timeframe ),
-                        query=self.getQuery( self._request.get( 'catalog' ) ),
-                        fields=self.getFields( self._request.get( 'catalog' ) )
-            )
-
-            # parse records into geo dataframe
-            df = gpd.GeoDataFrame( list( iterator ) )
-            df[ 'geometry' ] =  df[ 'geometry' ].apply( shape )
-
-        return df
-
-
     def getRequest( self, bbox, timeframe, resolution, data_path=None ):
 
         """
@@ -286,7 +272,7 @@ class Client:
         return start_lag, end_lag
 
 
-    def getCatalog( self, collection ):
+    def getCatalog( self ):
 
         """
         get catalog pertaining to data collection
@@ -294,7 +280,6 @@ class Client:
 
         # get catalog for collection
         return SentinelHubCatalog(
-            base_url=DataCollection[ collection ].service_url,
             config=self._config
         )
 
@@ -424,52 +409,8 @@ class Client:
                 if options.get( arg ) is not None:
                     other_args[ arg ] = dict ( options.get( arg ) )
 
-        return SentinelHubRequest.input_data(   data_collection=DataCollection[ _input.collection ],
+        return SentinelHubRequest.input_data(   data_collection=self.getDataCollection( _input ),
                                                 identifier=_input.get( 'id' ),
                                                 time_interval=self.getTimeInterval( timeframe ),
                                                 mosaicking_order=mosaic_order if mosaic_order is not None else 'mostRecent',
                                                 other_args=other_args if bool ( other_args ) else None )
-
-
-
-
-import os
-import yaml
-from munch import munchify
-
-# load cfg file using yaml parser
-cfg_file = 'C:\\Users\\crwil\\Documents\\GitHub\\biodiversity\\cfg\\s2-timeseries-reflectance.yml'
-with open( cfg_file, 'r' ) as f:
-    config = munchify( yaml.safe_load( f ) )
-
-# create instance of shclient class
-client = Client( config )
-
-extent = ( -0.36863101, 51.80157414, -0.36120527, 51.80552046 )
-bbox = client.getBoundingBox( extent )
-resolution = 10
-
-
-timeframes = []; year = 2020; interval = 10
-delta = timedelta(days=interval) - timedelta(seconds=1)
-
-# get timeframes
-start_dt = datetime( year, 1, 1, 0, 0, 0 )
-while start_dt.year == year:
-
-    end_dt = start_dt + delta
-    timeframes.append( { 'start' : start_dt, 'end' : end_dt } )
-
-    start_dt = end_dt + timedelta(seconds=1)
-
-
-
-# get S2 acquisitions between start / end dates satisfying filter conditions
-timestamps = client.getDatasetTimeStamps ( config.request.inputs[ 0 ], bbox, timeframes[ 0 ] )
-timestamps
-
-# get time series
-response = client.getTimeSeries ( bbox, timeframes[ 0 ], resolution )
-response
-
-

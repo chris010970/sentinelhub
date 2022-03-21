@@ -1,0 +1,56 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            datasource: "byoc",
+                            bands: ["B1", "B2"]
+                        },
+                        {
+                            datasource: "s2_l2a",
+                            bands: ["B02", "B03", "B04" ],
+                        } ],
+                        output: {
+                            bands: 5, sampleType: SampleType.FLOAT32
+                        }
+                    }
+                }
+                function evaluatePixel(samples) {
+                    var s1 = samples.byoc[0]
+                    var s2 = samples.s2_l2a[0]
+
+                    return [ s2.B02, s2.B03, s2.B04, s1.B1, s1.B2 ]
+                }
+    inputs:
+        - collection: byoc-3d2a9be6-6c5b-4e7a-87d7-e6ea30e72f78
+          id: byoc
+        - collection: SENTINEL2_L2A
+          id: s2_l2a
+          options:
+            processing:
+                upsampling: BICUBIC 
+                downsampling: BILINEAR
+          catalog:    
+            query: |
+                {
+                    "eo:cloud_cover": {
+                        "lt": 5
+                    }
+                }
+            fields: |
+                {
+                    "include": [
+                        "id",
+                        "properties.datetime",
+                        "properties.eo:cloud_cover"
+                    ],
+                    "exclude": []
+                }   
+          lag: 168, 24
+responses:
+    default: TIFF
+aoi:
+    pathname: <path-to-aoi-file>
+    field: name
+    distance: 500
