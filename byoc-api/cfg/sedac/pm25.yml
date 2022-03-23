@@ -1,0 +1,20 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            bands: ["pm25" ],
+                        } ],
+                        output: { 
+                            bands: 1, sampleType: SampleType.FLOAT32
+                        }
+                    }
+                }
+                function evaluatePixel(samples) {                  
+                    return [ samples.pm25 ]
+                }
+    inputs:
+        - collection: byoc-1f536de6-b8b2-42ca-9146-7c1c04b68a1a        
+responses:
+    default: TIFF
