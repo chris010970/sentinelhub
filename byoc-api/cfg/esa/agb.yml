@@ -1,0 +1,26 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            bands: [ "agb", "agb_sd" ],
+                        } ],
+                        output: [
+                            {id: "AGB", bands: 1, sampleType: SampleType.UINT16},
+                            {id: "AGB_SD", bands: 1, sampleType: SampleType.UINT16} ]
+                    }
+                }
+                function evaluatePixel(samples) {                  
+                
+                    var agb = [ samples.agb ]
+                    var agb_sd = [ samples.agb_sd ]
+                    return {
+                        AGB: agb,
+                        AGB_SD: agb_sd
+                    }
+    inputs:
+        - collection: byoc-d47c698f-d92d-439b-a132-68e735f7888f
+responses:
+    AGB: TIFF
+    AGB_SD: TIFF

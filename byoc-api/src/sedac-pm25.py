@@ -52,8 +52,8 @@ class SedacPM25():
                 # add a predictor to further reduce the file size: add -co PREDICTOR=YES.
                 
                 # setup options
-                options = '-a_nodata 0 '
-                options += '-of COG -co COMPRESS=DEFLATE -co BLOCKSIZE=1024 -co RESAMPLING=AVERAGE -co OVERVIEWS=IGNORE_EXISTING '
+                # options = '-a_nodata 0 '
+                options = '-of COG -co COMPRESS=DEFLATE -co BLOCKSIZE=1024 -co RESAMPLING=AVERAGE -co OVERVIEWS=IGNORE_EXISTING '
                 options += '-co PREDICTOR=YES'
                                     
                 # translate png / jpg into geotiff
