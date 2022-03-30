@@ -4,23 +4,23 @@ request:
                 function setup() {
                     return {
                         input: [{
-                            bands: [ "agb", "agb_sd" ],
+                            bands: [ "agb", "agb_sd" ]
                         } ],
                         output: [
                             {id: "AGB", bands: 1, sampleType: SampleType.UINT16},
                             {id: "AGB_SD", bands: 1, sampleType: SampleType.UINT16} ]
                     }
                 }
-                function evaluatePixel(samples) {                  
-                
+                function evaluatePixel(samples) {                                  
                     var agb = [ samples.agb ]
                     var agb_sd = [ samples.agb_sd ]
                     return {
                         AGB: agb,
                         AGB_SD: agb_sd
                     }
+                }
     inputs:
-        - collection: byoc-d47c698f-d92d-439b-a132-68e735f7888f
+        - collection: byoc-83ca4321-27eb-42ad-b2aa-b1e1767824ac
 responses:
     AGB: TIFF
     AGB_SD: TIFF
