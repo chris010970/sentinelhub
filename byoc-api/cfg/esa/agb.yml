@@ -20,7 +20,7 @@ request:
                     }
                 }
     inputs:
-        - collection: byoc-83ca4321-27eb-42ad-b2aa-b1e1767824ac
+        - collection: byoc-e837d74e-62de-4a99-ba32-cfae72977321
 responses:
     AGB: TIFF
     AGB_SD: TIFF
