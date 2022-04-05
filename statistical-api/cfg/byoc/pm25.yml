@@ -1,0 +1,32 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            bands: [
+                                "pm25",
+                                "dataMask"
+                            ]
+                        }],
+                        output: [
+                        {
+                            id: "output_pm25",
+                            bands: 1,
+                            sampleType: "FLOAT32"
+                        },
+                        {
+                            id: "dataMask",
+                            bands: 1
+                        } ]
+                    }
+                }
+                function evaluatePixel(samples) {
+                    return {
+                        output_pm25: [samples.pm25],
+                        dataMask: [samples.dataMask]
+                    }
+                }    
+    inputs:
+        - collection: byoc-8264570a-02b7-4196-ae8e-0c9d7af766e7
+responses:

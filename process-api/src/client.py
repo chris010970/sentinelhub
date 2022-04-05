@@ -28,7 +28,7 @@ from .response import Response
 
 class Client:
 
-    def __init__( self, config ):
+    def __init__( self, config, base_url=None ):
 
         """
         constructor
@@ -39,6 +39,9 @@ class Client:
 
         # create sh config
         self._config = SHConfig()
+        if base_url is not None:
+            self._config.sh_base_url = base_url
+
         self._delta = timedelta(hours=1)
 
         return
@@ -136,10 +139,8 @@ class Client:
                 for _input in self._inputs:
 
                     # compute temporal window around timestamp
-                    start_lag, end_lag = self.getLag( _input )
-                    timeframe[ _input.collection ] = {  'start' : ( timestamp - ( self._delta * start_lag ) ), 
-                                                        'end' : ( timestamp + ( self._delta * end_lag ) ) }
-
+                    timeframe[ _input.collection ] = self.getTimeFrame( _input, bbox, timestamp )
+                                        
                 # construct new request covering 1 hour time slice
                 requests.append (   self.getRequest( bbox, 
                                     timeframe, 
@@ -251,14 +252,13 @@ class Client:
         )
 
 
-    def getLag( self, _input ):
+    def getTimeFrame( self, _input, bbox, timestamp ):
 
         """
         initialise start and end lag
         """
 
         # default to 1 hour
-        start_lag = end_lag = 1
         value = _input.get( 'lag' )
         if value is not None:
 
@@ -269,7 +269,24 @@ class Client:
             if len( params ) > 1:
                 end_lag = int( params[ 1 ] )
 
-        return start_lag, end_lag
+            # get timestamps of datasets within lag temporal window
+            lag_timestamps = self.getDatasetTimeStamps(  _input, 
+                                                            bbox, 
+                                                        {   'start' : ( timestamp - ( self._delta * start_lag ) ), 
+                                                            'end' : ( timestamp + ( self._delta * end_lag ) ) } )
+
+            # locate closest available dataset in time
+            min_diff = timedelta( weeks=1000 )
+            for lag_timestamp in lag_timestamps:
+
+                diff = timestamp - lag_timestamp
+                if diff < min_diff:
+
+                    # track timestamp of dataset closest in time
+                    min_diff = diff
+                    timestamp = lag_timestamp
+
+        return  { 'start' : ( timestamp - ( self._delta ) ), 'end' : ( timestamp + ( self._delta ) ) }
 
 
     def getCatalog( self ):
@@ -411,6 +428,9 @@ class Client:
 
         return SentinelHubRequest.input_data(   data_collection=self.getDataCollection( _input ),
                                                 identifier=_input.get( 'id' ),
+                                                maxcc=_input.get( 'maxcc' ),
+                                                upsampling=_input.get( 'upsampling' ),
+                                                downsampling=_input.get( 'downsampling' ),
                                                 time_interval=self.getTimeInterval( timeframe ),
                                                 mosaicking_order=mosaic_order if mosaic_order is not None else 'mostRecent',
                                                 other_args=other_args if bool ( other_args ) else None )

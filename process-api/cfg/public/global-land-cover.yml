@@ -1,0 +1,38 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [ { bands: [ "Discrete_Classification_map",
+                                            "Bare_CoverFraction_layer",
+                                            "BuiltUp_CoverFraction_layer",
+                                            "Crops_CoverFraction_layer",
+                                            "Grass_CoverFraction_layer",
+                                            "MossLichen_CoverFraction_layer",
+                                            "Shrub_CoverFraction_layer",
+                                            "Tree_CoverFraction_layer",
+                                            "PermanentWater_CoverFraction_layer",
+                                            "SeasonalWater_CoverFraction_layer",
+                                            "Change_Confidence_layer" ],
+                                units: ["DN", "DN", "DN", "DN", "DN", "DN", "DN", "DN", "DN", "DN", "DN" ] 
+                        }],
+                        output: { bands: 11, sampleType: SampleType.UINT16  }
+                    };
+                }
+                function evaluatePixel(sample) {
+                    return [ sample.Discrete_Classification_map,
+                            sample.Bare_CoverFraction_layer,
+                            sample.BuiltUp_CoverFraction_layer,
+                            sample.Crops_CoverFraction_layer,
+                            sample.Grass_CoverFraction_layer,
+                            sample.MossLichen_CoverFraction_layer,
+                            sample.Shrub_CoverFraction_layer,
+                            sample.Tree_CoverFraction_layer,
+                            sample.PermanentWater_CoverFraction_layer,
+                            sample.SeasonalWater_CoverFraction_layer,
+                            sample.Change_Confidence_layer ]
+                }  
+    inputs:
+        - collection: byoc-f0a97620-0e88-4c1f-a1ac-bb388fabdf2c
+responses:
+    default: TIFF

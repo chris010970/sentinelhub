@@ -1,0 +1,36 @@
+request:
+    evalscript: |      
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            bands: [
+                                "VV",
+                                "dataMask"
+                            ]
+                        }],
+                        output: [
+                        {
+                            id: "output_VV",
+                            bands: 1,
+                            sampleType: "FLOAT32"
+                        },
+                        {
+                            id: "dataMask",
+                            bands: 1
+                        }]
+                    }
+                }
+                function evaluatePixel(samples) {
+                    return {
+                        output_VV: [samples.VV],
+                        dataMask: [samples.dataMask]
+                    }
+                }
+    inputs:
+        - collection: SENTINEL1
+          options:
+            processing:
+                orthorectify: yes
+                backCoeff: GAMMA0_TERRAIN
+responses:

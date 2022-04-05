@@ -1,0 +1,76 @@
+request:
+    evalscript: |       
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            bands: [
+                                "B04",
+                                "B08",
+                                "SCL",
+                                "dataMask"
+                            ]
+                        }],
+                        output: [
+                        {
+                            id: "output_my_bands",
+                            bands: ["only_band_B04", "only_band_B08"],
+                            sampleType: "FLOAT32"
+                        },
+                        {
+                            id: "output_my_indices",
+                            bands: 1,
+                            sampleType: "FLOAT32"
+                        },
+                        {
+                            id: "output_scl",
+                            bands: 1,
+                            sampleType: "UINT8"
+                        },
+                        {
+                            id: "dataMask",
+                            bands: ["output_my_bands", "output_my_indices"]
+                        }]
+                    }
+                }
+                function evaluatePixel(samples) {
+                    let ndvi = (samples.B08 - samples.B04)/(samples.B08 + samples.B04)
+                    var validNDVIMask = 1
+                    if (samples.B08 + samples.B04 == 0 ){
+                        validNDVIMask = 0
+                    }
+                    var noWaterMask = 1
+                    if (samples.SCL == 6 ){
+                        noWaterMask = 0
+                    }
+                    return {
+                        output_my_bands: [samples.B04, samples.B08],
+                        output_my_indices: [ndvi],
+                        output_scl: [samples.SCL],
+                        dataMask: [samples.dataMask, samples.dataMask * noWaterMask * validNDVIMask]
+                    }
+                }
+    inputs:
+        - collection: SENTINEL2_L2A    
+          mosaic:
+            order: leastRecent
+responses:
+    output_my_bands:
+        histograms:
+            only_band_B08:
+                nBins: 3
+                lowEdge: 0.0
+                highEdge: 0.3
+        statistics:
+            only_band_B04:
+                percentiles:
+                    k: [33, 66,100]
+    output_scl:
+        histograms:
+            default:
+                bins: [0,1,2,3,4,5,6,7,8,9,10,11]
+    default:
+        histograms:
+            default:
+                binWidth: 0.05
+                lowEdge: 0.0

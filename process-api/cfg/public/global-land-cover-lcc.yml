@@ -1,0 +1,18 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [ { bands: [ "Discrete_Classification_map" ],
+                                units: [ "DN" ] 
+                        }],
+                        output: { bands: 1, sampleType: SampleType.UINT16  }
+                    };
+                }
+                function evaluatePixel(sample) {
+                    return [ sample.Discrete_Classification_map ]
+                }  
+    inputs:
+        - collection: byoc-f0a97620-0e88-4c1f-a1ac-bb388fabdf2c
+responses:
+    default: TIFF

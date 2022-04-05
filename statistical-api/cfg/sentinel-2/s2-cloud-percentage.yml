@@ -1,0 +1,33 @@
+request:
+    evalscript: |       
+            //VERSION=3
+            function setup() {
+                return {
+                    input: [{
+                        bands: [
+                            "CLM",
+                            "dataMask"
+                        ]
+                    } ],
+                    output: [
+                    {
+                        id: "data",
+                        bands: 1
+                    },
+                    {
+                        id: "dataMask",
+                        bands: 1
+                    }]
+                }
+            }
+            function evaluatePixel(samples) {
+                return {
+                    data: [samples.CLM],
+                    dataMask: [samples.dataMask]
+                }
+            }
+    inputs:
+        - collection: SENTINEL2_L2A    
+          mosaic:
+            order: leastRecent
+responses:
