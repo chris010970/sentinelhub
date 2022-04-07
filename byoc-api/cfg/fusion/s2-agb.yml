@@ -1,0 +1,66 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            datasource: "byoc",
+                            bands: [ "agb", "agb_sd" ]
+                        },
+                        {
+                            datasource: "s2_l2a",
+                            bands: [ "B04", "B08", "SCL" ],
+                        } ],
+                        output: [
+                            {id: "AGB", bands: 1, sampleType: SampleType.UINT16},
+                            {id: "AGB_SD", bands: 1, sampleType: SampleType.UINT16},
+                            {id: "NDVI", bands: 1, sampleType: SampleType.FLOAT32} 
+                        ]
+                    }
+                }
+                function evaluatePixel(samples) {                                  
+                    
+                    var byoc = samples.byoc[0]
+                    var s2 = samples.s2_l2a[0]
+                
+                    var ndvi = -99
+                    if ([4, 5].includes(s2.SCL)) {
+                        ndvi = index( s2.B08, s2.B04 )
+                    }
+                    
+                    return {
+                        AGB: [ byoc.agb ],
+                        AGB_SD: [ byoc.agb_sd ],
+                        NDVI: [ ndvi ]
+                    }
+                }
+    inputs:
+        - collection: SENTINEL2_L2A
+          id: s2_l2a
+          options:
+            processing:
+                upsampling: BICUBIC 
+                downsampling: BILINEAR
+          catalog:    
+            query: |
+                {
+                    "eo:cloud_cover": {
+                        "lt": 5
+                    }
+                }
+            fields: |
+                {
+                    "include": [
+                        "id",
+                        "properties.datetime",
+                        "properties.eo:cloud_cover"
+                    ],
+                    "exclude": []
+                }   
+        - collection: byoc-e837d74e-62de-4a99-ba32-cfae72977321
+          id: byoc
+          lag: 10000, 10000
+responses:
+    AGB: TIFF
+    AGB_SD: TIFF
+    NDVI: TIFF
