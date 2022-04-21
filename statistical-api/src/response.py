@@ -3,14 +3,23 @@ from sentinelhub import parse_time
 
 class Response:
 
-    def __init__( self, data ):
+    def __init__( self, data, ids=None ):
 
         """
         constructor
         """
 
-        # copy args
+        # parse statistical response data into dataframes
         self._dfs = [ self.convertToDataFrame(stats) for stats in data ]
+
+        # generate default id
+        if ids is None or len( ids ) != len ( self._dfs ):
+            ids = [ f'geom_{x}' for x in range ( len ( self._dfs ) ) ]
+
+        # insert id column into dataframe
+        for idx, df in enumerate( self._dfs ):
+            self._dfs[ idx ].insert( 0, 'id', ids[ idx ] )
+
         return
 
 

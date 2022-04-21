@@ -20,7 +20,6 @@ from sentinelhub import geo_utils
 #from response import Response
 from .response import Response
 
-
 class Client:
 
     def __init__( self, config ):
@@ -115,7 +114,7 @@ class Client:
         polygons = kwargs.get( 'polygons' )
 
         # build requests from args
-        requests = []
+        requests = []; ids = None
         for timeframe in timeframes:
 
             # polygon aois encoded as geodataframe
@@ -124,6 +123,10 @@ class Client:
 
                     kwargs[ 'geometry' ] = Geometry( feature, crs=CRS( polygons.crs ) )
                     requests.append( self.getRequest( timeframe, **kwargs ) )
+
+                # get polygon ids
+                if 'id' in polygons.columns:
+                    ids = polygons.id.values
 
             # bounding box based request
             if bbox is not None:
@@ -139,7 +142,7 @@ class Client:
             data = { 'default' : data }
 
         # parse responses into dataframe        
-        return None if data is None else Response ( data )
+        return None if data is None else Response ( data, ids=ids )
 
 
     def getRequest( self, timeframe, **kwargs ):
@@ -256,25 +259,22 @@ cfg_file = os.path.join( cfg_path, 's2-band4-histogram.yml' )
 with open( cfg_file, 'r' ) as f:
     config = munchify( yaml.safe_load( f ) )
 
-#gdf = gpd.read_file( os.path.join( root_path, 'test/wells.geojson' ) )
-#gdf = gdf.to_crs( gdf.estimate_utm_crs()  )
-
-
-# define min and max latlons
-coords = 414315, 4958219, 414859, 4958819
-crs = CRS( 32633 )
-
-resolution = 10
+gdf = gpd.read_file( os.path.join( root_path, 'test/wells.geojson' ) )
+gdf = gdf.to_crs( gdf.estimate_utm_crs()  )
 
 # define aggregation timeframe
 from datetime import datetime
-timeframe = { 'start' : datetime.strptime('2020-07-04', '%Y-%m-%d'), 'end' : datetime.strptime('2020-07-05', '%Y-%m-%d') }
+timeframe = { 'start' : datetime.strptime('2020-07-04', '%Y-%m-%d'), 'end' : datetime.strptime('2020-07-15', '%Y-%m-%d') }
 
 # get mosaic between timeframe at specified pixel resolution
 client = Client( config )
-bbox = client.getBoundingBox( coords, crs )
 
-#response = client.getStatistics( [ timeframe ], resolution=100, polygons=gdf )
-response = client.getStatistics( [ timeframe ], resolution=10, bbox=bbox )
+# define min and max latlons
+#coords = 414315, 4958219, 414859, 4958819
+#crs = CRS( 32633 )
+#bbox = client.getBoundingBox( coords, crs )
+
+response = client.getStatistics( [ timeframe ], resolution=100, polygons=gdf )
+#response = client.getStatistics( [ timeframe ], resolution=10, bbox=bbox )
 response._df
 """
