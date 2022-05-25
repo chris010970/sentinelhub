@@ -1,0 +1,60 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [ {
+                            datasource: "ls89_l1c",
+                            bands: [ "B04", "B08" ],
+                            units: [ "DN", "DN" ]
+                        },
+                        {
+                            datasource: "glc",
+                            bands: ["Discrete_Classification_map"],
+                            units: [ "DN" ] 
+                        } ],
+                        output: [{ // this is now an array since there are multiple output objects
+                          id: "NDVI",
+                          bands: 4,
+                          sampleType: "FLOAT32"
+                        }, 
+                        {
+                          id: "LCC",
+                          bands: 1,
+                          sampleType: "FLOAT32"
+                        } ]
+                    }
+                }
+                function evaluatePixel(samples) {
+                    var ls89 = samples.ls89_l1c[0]
+                    var glc = samples.glc[0]
+                    var forest = -99
+                    var grassland = -99
+                    var cropland = -99
+                    var wetland = -99
+                    if (glc.Discrete_Classification_map >= 111 || glc.Discrete_Classification_map <= 126 ) {
+                        forest = index( ls89.B08, ls89.B04 )
+                    }
+                    if (glc.Discrete_Classification_map == 20 || glc.Discrete_Classification_map == 30 ) {
+                        grassland = index( ls89.B08, ls89.B04 )
+                    }
+                    if (glc.Discrete_Classification_map == 40 ) {
+                        cropland = index( ls89.B08, ls89.B04 )
+                    }
+                    if (glc.Discrete_Classification_map == 90 ) {
+                        wetland = index( ls89.B08, ls89.B04 )
+                    }
+                    return {
+                        NDVI: [ forest, grassland, cropland, wetland ],
+                        LCC: [ glc.Discrete_Classification_map ]
+                    };
+                }
+    inputs:
+        - collection: LANDSAT_OT_L1
+          id: ls89_l1c
+        - collection: byoc-f0a97620-0e88-4c1f-a1ac-bb388fabdf2c
+          id: glc
+          lag: 50000,50000
+responses:
+    NDVI: TIFF
+    LCC: TIFF

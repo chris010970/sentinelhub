@@ -1,0 +1,48 @@
+request:
+    evalscript: |       
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            bands: [
+                                "B02",
+                                "B03",
+                                "B04",
+                                "B05",
+                                "B06",
+                                "B07",
+                                "B08",
+                                "B8A",
+                                "B11",
+                                "B12",                                
+                                "SCL",
+                                "dataMask"
+                            ]
+                        }],
+                        output: [
+                        {
+                            id: "stats",
+                            bands: [ "band_B02", "band_B03", "band_B04", "band_B05", "band_B06", "band_B07", "band_B08", "band_B8A", "band_B11", "band_B12" ],
+                            sampleType: "FLOAT32"                            
+                        },
+                        {
+                            id: "dataMask",
+                            bands: 1
+                        }]
+                    }
+                }
+                function evaluatePixel(samples) {
+                    var qaMask = 0
+                    if ( samples.SCL == 4 || samples.SCL == 5 ) {
+                        qaMask = 1
+                    }
+                    return {
+                        stats: [ samples.B02, samples.B03, samples.B04, samples.B05, samples.B06, samples.B07, samples.B08, samples.B8A, samples.B11, samples.B12 ],
+                        dataMask: [ samples.dataMask * qaMask ]
+                    }
+                }
+    inputs:
+        - collection: SENTINEL2_L2A    
+          mosaic:
+            order: leastRecent
+responses:

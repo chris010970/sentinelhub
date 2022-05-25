@@ -1,0 +1,32 @@
+request:
+    evalscript: |       
+
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            bands: [
+                                "Discrete_Classification_map",
+                                "dataMask"
+                            ]
+                        }],
+                        output: [
+                            {
+                                id: "data",
+                                bands: 1
+                            },
+                            {
+                                id: "dataMask",
+                                bands: 1
+                            }]
+                    }
+                }
+                function evaluatePixel(samples) {									
+                    return {
+                        data: [ samples.Discrete_Classification_map ],
+                        dataMask: [samples.dataMask ]
+                    }
+                }
+    inputs:
+        - collection: byoc-f0a97620-0e88-4c1f-a1ac-bb388fabdf2c
+responses:

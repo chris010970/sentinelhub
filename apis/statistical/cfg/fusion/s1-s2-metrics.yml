@@ -1,0 +1,93 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            datasource: "s1",
+                            bands: [
+                                "VV",
+                                "VH",
+                                "shadowMask",
+                                "dataMask"
+                            ]
+                        },
+                        {
+                            datasource: "s2_l2a",
+                            bands: [    "B02",
+                                        "B03",
+                                        "B04",
+                                        "B05",
+                                        "B06",
+                                        "B07",
+                                        "B08",
+                                        "B8A",
+                                        "B11",
+                                        "B12",
+                                        "CLM",
+                                        "viewZenithMean",
+                                        "dataMask"
+                            ],
+                        } ],                        
+                        output: [
+                        {
+                            id: "stats",
+                            bands: [ "s1_vv", "s1_vh", "s1_rvi", "s2_ndvi", "s2_evi", "s2_gndvi", "s2_ndci", "s2_mcari", "s2_clm" ],
+                            sampleType: "FLOAT32"                            
+                        },
+                        {
+                            id: "dataMask",
+                            bands: 1
+                        }]                        
+                    }
+                }
+                function evaluatePixel(samples) {
+                
+                    var s1 = samples.s1[0]
+                    var s2 = samples.s2_l2a[0]
+
+                    // create qa mask
+                    var qaMask = 1
+                    if ( s1.shadowMask > 0 ) {
+                        qaMask = 0
+                    }
+
+                    // degree of polarization
+                    var dop = ( s1.VV/( s1.VV + s1.VH ) ); 
+                    var m = 1 - dop;  
+                    var rvi = (Math.sqrt(dop))*((4*(s1.VH))/( s1.VV + s1.VH ) );
+
+                    // Normalized Difference Vegetation Index 
+                    var ndvi = index( s2.B08, s2.B04)
+                                       
+                    // Enhanced Vegetation Index
+                    var evi = 2.5 * ( s2.B08 - s2.B04 ) / (( s2.B08 + 6.0 * s2.B04 - 7.5 * s2.B02) + 1.0);
+                    
+                    // Green Normalized Difference Vegetation Index
+                    var gndvi = index( s2.B08, s2.B03) 
+                                        
+                    // Normalized Difference Chlorophyll Index
+                    var ndci = index( s2.B05, s2.B04)
+                    
+                    // Modified Chlorophyll Absorption in Reflectance Index 
+                    var mcari = (( s2.B05 - s2.B04) - 0.2 * (s2.B05 - s2.B03)) * (s2.B05 / s2.B04);
+                                        
+                    return {
+                        stats: [ s1.VV, s1.VH, rvi, ndvi, evi, gndvi, ndci, mcari, s2.CLM ],
+                        dataMask: [ s1.dataMask * s2.dataMask * qaMask ]
+                    }
+                }
+                // decibels
+                function toDb(linear) {
+                    return  ( linear > 0 ) ? 10 * Math.log( linear ) : -100
+                }
+    inputs:
+        - collection: SENTINEL2_L2A
+          id: s2_l2a
+        - collection: SENTINEL1
+          id: s1
+          options:
+            processing:
+                orthorectify: yes
+                backCoeff: GAMMA0_TERRAIN
+responses:

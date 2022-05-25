@@ -1,0 +1,54 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            bands: [
+                                "VV",
+                                "VH",
+                                "shadowMask",
+                                "dataMask"
+                            ]
+                        }],
+                        output: [
+                        {
+                            id: "stats",
+                            bands: [ "band_vv", "band_vh", "band_rvi" ],
+                            sampleType: "FLOAT32"                            
+                        },
+                        {
+                            id: "dataMask",
+                            bands: 1
+                        }]                        
+                    }
+                }
+                function evaluatePixel(samples) {
+
+                    // create qa mask
+                    var qaMask = 1
+                    if ( samples.shadowMask > 0 ) {
+                        qaMask = 0
+                    }
+
+                    // degree of polarization
+                    var dop = ( samples.VV/( samples.VV + samples.VH ) ); 
+                    var m = 1 - dop;  
+                    var rvi = (Math.sqrt(dop))*((4*(samples.VH))/( samples.VV + samples.VH));
+
+                    return {
+                        stats: [ samples.VV, samples.VH, rvi ],
+                        dataMask: [ samples.dataMask * qaMask ]
+                    }
+                }
+                // decibels
+                function toDb(linear) {
+                    return  ( linear > 0 ) ? 10 * Math.log( linear ) : -100
+                }
+    inputs:
+        - collection: SENTINEL1
+          options:
+            processing:
+                orthorectify: yes
+                backCoeff: GAMMA0_TERRAIN
+responses:

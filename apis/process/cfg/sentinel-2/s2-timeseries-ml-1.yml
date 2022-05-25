@@ -1,0 +1,29 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [{
+                            bands: ["B02", "B03", "B04", "B05", "B06", "B07" ],
+                            units: ["REFLECTANCE", "REFLECTANCE", "REFLECTANCE", "REFLECTANCE", "REFLECTANCE", "REFLECTANCE" ] 
+                        }],
+                        output: {
+                            bands: 6, sampleType: SampleType.FLOAT32
+                        }
+                    };
+                }
+                function evaluatePixel(sample) {
+                    return [ sample.B02, sample.B03, sample.B04, sample.B05, sample.B06, sample.B07 ]
+                }
+    inputs:
+        - collection: SENTINEL2_L2A
+          options:
+            processing:
+                upsampling: BICUBIC 
+                downsampling: BILINEAR
+responses:
+    default: TIFF
+aoi:
+    pathname: D:\SAC\Qat_locations\aoi.shp
+    name: name
+    distance: 500

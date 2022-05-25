@@ -1,0 +1,51 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                      input: [{
+                          bands: ["B02", "B03", "B04", "B08"],
+                          units: ["reflectance", "reflectance", "reflectance", "reflectance"] 
+                      }],
+                      output: [{ // this is now an array since there are multiple output objects
+                          id: "rgb",
+                          bands: 3,
+                          sampleType: "FLOAT32"
+                      }, {
+                          id: "falseColor",
+                          bands: 3,
+                          sampleType: "FLOAT32"
+                      }]
+                    }                  
+                }
+                function evaluatePixel(sample) {
+                    return {
+                        rgb: [2.5 * sample.B04, 2.5 * sample.B03, 2.5 * sample.B02],
+                        falseColor: [2.5 * sample.B08, 2.5 * sample.B04, 2.5 * sample.B03]
+                    };
+                }                        
+    inputs:
+        - collection: SENTINEL2_L2A
+          catalog:    
+            query: |
+                {
+                    "eo:cloud_cover": {
+                        "lt": 100
+                    }
+                }
+            fields: |
+                {
+                    "include": [
+                        "id",
+                        "properties.datetime",
+                        "properties.eo:cloud_cover"
+                    ],
+                    "exclude": []
+                }   
+responses:
+    rgb: TIFF
+    falseColor: TIFF
+aoi:
+    pathname: <path-to-aoi-file> 
+    field: name
+    distance: 500
