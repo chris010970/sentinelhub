@@ -1,0 +1,606 @@
+indexes:
+
+    - name: ATSAVI
+      description: Adjusted transformed soil-adjusted VI
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=209
+      formula: 1.22 * (B08 - 1.22 * B04 - 0.03) / (1.22 * B08 + B04 - 1.22 * 0.03 + 0.08 * (1.0 + Math.pow(1.22, 2.0)));
+    
+    - name: AFRI1600
+      description: Aerosol free vegetation index 1600
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=393
+      formula: B08 - 0.66 * B11 / (B08 + 0.66 * B11);
+    
+    - name: AFRI2100
+      description: Aerosol free vegetation index 2100
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=395
+      formula: B08 - 0.5 * B12 / (B08 + 0.56 * B12);
+      
+    - name: Alteration
+      description: Alteration
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=1
+      formula: B11 / B12;
+      
+    - name: ARI
+      description: Anthocyanin reflectance index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=214
+      formula: 1.0 / B03 - 1.0 / B05;
+      
+    - name: AVI
+      description: Ashburn Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=574
+      formula: 2.0 * B09 - B04;
+      
+    - name: ARVI
+      description: Atmospherically Resistant Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=4
+      formula: (B8A - B04 - 0.069 * (B04 - B02)) / (B8A + B04 - 0.069 * (B04 - B02));
+      
+    - name: ARVI2
+      description: Atmospherically Resistant Vegetation Index MK 2
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=396
+      formula: -0.18 + 1.17 * ((B08 - B04) / (B08 + B04));
+      
+    - name: BWDRVI
+      description: Blue-wide dynamic range vegetation index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=136
+      formula: (0.1 * B08 - B02) / (0.1 * B08 + B02);
+      
+    - name: BRI
+      description: Browning Reflectance Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=480
+      formula: (1.0 / B03 - 1.0 / B05) / B08;
+      
+    - name: CCCI
+      description: Canopy Chlorophyll Content Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=224
+      formula: ((B08 - B05) / (B08 + B05)) / ((B08 - B04) / (B08 + B04));
+      
+    - name: CARI
+      description: Chlorophyll Absorption Ratio Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=142
+      formula: (B05 / B04) * (Math.sqrt(Math.pow(((B05 - B03) / 150.0 * 670.0 + B04 + (B03 - ((B05 - B03) / 150.0 * 550.0))), 2.0))) / (Math.pow(((B05 - B03) / Math.pow(150.0, 2.0) + 1.0), 0.5));
+    
+    - name: CARI2
+      description: Chlorophyll Absorption Ratio Index MK 2
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=250
+      formula: (Math.abs(((B05 - B03) / 150.0 * B04 + B04 + B03 - (0.496 * B03))) / Math.pow((Math.pow(a, 2.0) + 1.0), 0.5)) * (B05 / B04);
+
+    - name: CHLgreen
+      description: Chlorophyll Green
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=251
+      formula: Math.pow((B07 / B03), (-1.0));
+      
+    - name: CIgreen
+      description: Chlorophyll Index Green
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=128
+      formula: B08 / B03 - 1.0;
+      
+    - name: CIrededge
+      description: Chlorophyll IndexRedEdge
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=131
+      formula: B08 / B05 - 1.0;
+      
+    - name: CVI
+      description: Chlorophyll vegetation index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=391
+      formula: B08 * B04 / Math.pow(B03, 2.0);
+      
+    - name: CI
+      description: Coloration Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=11
+      formula: (B04 - B02) / B04;
+      
+    - name: CTVI
+      description: Corrected Transformed Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=244
+      formula: (((B04 - B03) / (B04 + B03)) + 0.5) / Math.abs(((B04 - B03) / (B04 + B03)) + 0.5) * Math.sqrt(Math.abs((((B04 - B03) / (B04 + B03))) + 0.5));
+
+    - name: CRI550
+      description: CRI550
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=253
+      formula: Math.pow(B02, (-1.0)) - Math.pow(B03, (-1.0));
+      
+    - name: CRI700
+      description: CRI700
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=254
+      formula: Math.pow(B02, (-1.0)) - Math.pow(B05, (-1.0));
+
+    - name: DATT1
+      description: DATT1
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=150
+      formula: (B08 - B05) / (B08 - B04);
+
+    - name: DATT2
+      description: Simple Ratio 850/710 DATT2
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=150
+      formula: B08 / B05;
+
+    - name: DATT4
+      description: DATT4
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=153
+      formula: B04 / (B03 * B05);
+      
+    - name: DATT6
+      description: DATT6
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=155
+      formula: B8A / (B03 * B05);
+      
+    - name: D678_500
+      description: Difference 678/500
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=481
+      formula: B04 - B02;            
+            
+    - name: D800_680
+      description: Difference 800/680
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=403
+      formula: B08 - B04;
+
+    - name: GDVI
+      description: Difference NIR/Green Green Difference Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=27
+      formula: B08 - B03;
+
+    - name: DVIMSS
+      description: Differenced Vegetation Index MSS 
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=569
+      formula: 2.4 * B09 - B04;
+
+    - name: EVI
+      description: Enhanced Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=16
+      formula: 2.5 * (B08 - B04) / ((B08 + 6.0 * B04 - 7.5 * B02) + 1.0);
+
+    - name: EVI2
+      description: Enhanced Vegetation Index MK 2
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=237
+      formula: 2.4 * (B08 - B04) / (B08 + B04 + 1.0);
+
+    - name: EVI2_2
+      description: Enhanced Vegetation Index MK 2.2
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=576
+      formula: 2.5 * (B08 - B04) / (B08 + 2.4 * B04 + 1.0);
+
+    - name: EPI
+      description: EPI
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=256
+      formula: 0.331 * B04 / Math.pow((B03 * B05), 0.329 );
+            
+    - name: GEMI
+      description: Global Environment Monitoring Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=25
+      formula: ((2.0 * (Math.pow(B08, 2.0) - Math.pow(B04, 2.0)) + 1.5 * B08 + 0.5 * B04) / (B08 + B04 + 0.5) * (1.0 - 0.25 * (2.0 * (Math.pow(B08, 2.0) - Math.pow(B04, 2.0)) + 1.5 * B08 + 0.5 * B04) / (B08 + B04 + 0.5)) - (B04 - 0.125) / (1.0 - B04));
+                        
+    - name: GVMI
+      description: Global Vegetation Moisture Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=372
+      formula: ((B08 + 0.1) - (B12 + 0.02)) / ((B08 + 0.1) + (B12 + 0.02));
+          
+    - name: GARI
+      description: Green atmospherically resistant vegetation index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=363
+      formula: (B08 - (B03 - (B02 - B04))) / (B08 - (B03 + (B02 - B04)));
+
+    - name: GI
+      description: Simple Ratio 554/677 Greenness Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=32
+      formula: B03 / B04;
+              
+    - name: GLI
+      description: Green leaf index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=375
+      formula: (2.0 * B03 - B04 - B02) / (2.0 * B03 + B04 + B02);
+      
+    - name: GNDVI
+      description: Green Normalized Difference Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=28
+      formula: (B08 - B03) / (B08 + B03);
+
+    - name: GNDVIhyper
+      description: Normalized Difference 780/550 Green NDVI hyper
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=400
+      formula: (B07 - B03) / (B07 + B03);
+            
+    - name: GOSAVI
+      description: Green Optimized Soil Adjusted Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=29
+      formula: (B08 - B03) / (B08 + B03 + 0.120);
+      
+    - name: GSAVI
+      description: Green Soil Adjusted Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=31
+      formula: (B08 - B03) / (B08 + B03 + 0.482) * (1.0 + 0.482);
+
+    - name: GBNDVI
+      description: Green-Blue NDVI
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=186
+      formula: (B08 - (B03 + B02)) / (B08 + (B03 + B02));
+      
+    - name: GRNDVI
+      description: Green-Red NDVI
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=185
+      formula: (B08 - (B03 + B04)) / (B08 + (B03 + B04));
+      
+    - name: IVI
+      description: Ideal vegetation index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=276
+      formula: (B08 - 0.809) / (0.393 * B04);
+      
+    - name: LCI
+      description: Leaf Chlorophyll Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=109
+      formula: (B08 - B05) / (B08 + B04);
+      
+    - name: LWCI
+      description: Leaf Water Content Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=129
+      formula: Math.log(1.0 - (B08 - 0.101)) / (-Math.log(1.0 - (B08 - 0.101)));
+      
+    - name: LogR
+      description: Log Ratio
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=243
+      formula: Math.log(B08 / B04);
+      
+    - name: Maccioni
+      description: Maccioni
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=166
+      formula: (B07 - B05) / (B07 - B04);
+      
+    - name: MCARI_OSAVI
+      description: MCARI_OSAVI
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=192
+      formula: ((B05 - B04) - 0.2 * (B05 - B03) * (B05 / B04)) / ((1.0 + 0.16) * (B08 - B04) / (B08 + B04 + 0.16));
+
+    - name: MCARI_MTVI2
+      description: MCARI/MTVI2
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=197
+      formula: (((B05 - B04) - 0.2 * (B05 - B03)) * (B05 / B04)) / (1.5 * (1.2 * (B08 - B03) - 2.5 * (B04 - B03)) / Math.sqrt(Math.pow((2.0 * B08 + 1.0), 2.0) - (6.0 * B08 - 5.0 * Math.sqrt(B04)) - 0.5));
+      
+    - name: mCRIG
+      description: mCRIG
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=257
+      formula: (Math.pow(B02, (-1.0)) - Math.pow(B03, (-1.0))) * B08;
+      
+    - name: mCRIRE
+      description: mCRIRE
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=258
+      formula: (Math.pow(B02, (-1.0)) - Math.pow(B05, (-1.0))) * B08;
+   
+    - name: MVI
+      description: Mid-infrared vegetation index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=541
+      formula: B09 / B11;
+   
+    - name: MGVI
+      description: Misra Green Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=571
+      formula: -0.386 * B03 - 0.53 * B04 + 0.535 * B06 + 0.532 * B09;
+   
+    - name: MNSI
+      description: Misra Non Such Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=573
+      formula: 0.404 * B03 - 0.039 * B04 - 0.505 * B06 + 0.762 * B09;
+      
+    - name: MSBI
+      description: Misra Soil Brightness Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=570
+      formula: 0.406 * B03 + 0.6 * B04 + 0.645 * B06 + 0.243 * B09;
+      
+    - name: MYVI
+      description: Misra Yellow Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=572
+      formula:  0.723 * B03 - 0.597 * B04 + 0.206 * B06 - 0.278 * B09;
+      
+    - name: mARI
+      description: Modified anthocyanin reflectance index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=215
+      formula:  (Math.pow(B03, (-1.0)) - Math.pow(B05, (-1.0))) * B08;  
+      
+    - name: MCARI
+      description: Modified Chlorophyll Absorption in Reflectance Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=41
+      formula:  ((B05 - B04) - 0.2 * (B05 - B03)) * (B05 / B04);
+            
+    - name: MCARI1
+      description: Modified Chlorophyll Absorption in Reflectance Index 1
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=42
+      formula:  1.2 * (2.5 * (B08 - B04) - 1.3 * (B08 - B03));
+      
+    - name: MCARI2
+      description: Modified Chlorophyll Absorption in Reflectance Index 2
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=43
+      formula:  1.5 * (2.5 * (B08 - B04) - 1.3 * (B08 - B03)) / Math.sqrt(Math.pow((2.0 * B08 + 1.0), 2.0) - (6.0 * B08 - 5.0 * Math.sqrt(B04)) - 0.5);
+      
+    - name: mNDVI
+      description: Modified NDVI
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=164
+      formula:  (B08 - B04) / (B08 + B04 - 2.0 * B01);
+      
+    - name: MNDVI
+      description: Normalized Difference NIR/MIR Modified Normalized Difference Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=245
+      formula: (B08 - B12) / (B08 + B12);
+      
+    - name: mSR
+      description: Modified Simple Ratio
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=167
+      formula: (B08 - B01) / (B04 - B01);
+
+    - name: MSRNirRed
+      description: Modified Simple Ratio NIR/RED 
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=362
+      formula: (B08 / B04 - 1.0) / Math.sqrt(B08 / B04 + 1.0);
+
+    - name: MSAVI
+      description: Modified Soil Adjusted Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=44
+      formula: (2.0 * B08 + 1.0 - Math.sqrt(Math.pow((2.0 * B08 + 1.0), 2.0) - 8.0 * (B08 - B04))) / 2.0;
+
+    - name: MSAVIhyper
+      description: Modified Soil Adjusted Vegetation Index hyper
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=45
+      formula: (0.5) * ((2.0 * B08 + 1.0) - Math.sqrt(Math.pow((2.0 * B08 + 1.0), 2.0) - 8.0 * (B08 - B04)));
+
+    - name: MTVI1
+      description: Modified Triangular Vegetation Index 1
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=46
+      formula: 1.2 * (1.2 * (B08 - B03) - 2.5 * (B04 - B03));
+
+    - name: MTVI2
+      description: Modified Triangular Vegetation Index 2
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=47
+      formula: 1.5 * (1.2 * (B08 - B03) - 2.5 * (B04 - B03)) / Math.sqrt(Math.pow((2.0 * B08 + 1.0), 2.0) - (6.0 * B08 - 5.0 * Math.sqrt(B04)) - 0.5);
+
+    - name: NLI
+      description: Nonlinear vegetation index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=111
+      formula: (Math.pow(B08, 2.0) - B04) / (Math.pow(B08, 2.0) + B04);
+
+    - name: NormG
+      description: NormG
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=50
+      formula: B03 / (B08 + B04 + B03);
+      
+    - name: NormNIR
+      description: NormNIR
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=51
+      formula: B08 / (B08 + B04 + B03);
+      
+    - name: NormR
+      description: NormR
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=52
+      formula: B04 / (B08 + B04 + B03);
+
+    - name: ND774_677
+      description: Normalized Difference 774/677
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=563
+      formula: (B07 - B04) / (B07 + B04);
+
+    - name: ND800_2170
+      description: Normalized Difference 800/2170
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=462
+      formula: (B08 - B12) / (B08 + B12);
+
+    - name: NDII
+      description: Normalized Difference 819/1600
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=242
+      formula: (B08 - B11) / (B08 + B11);
+
+    - name: NGRDI
+      description: Normalized Difference Green/Red Normalized green red difference index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=390
+      formula: (B03 - B04) / (B03 + B04);
+
+    - name: NDVI
+      description: Normalized Difference NIR/Red Normalized Difference Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=58
+      formula: (B08 - B04) / (B08 + B04);
+            
+    - name: NDRE
+      description: Normalized Difference NIR/Rededge Normalized Difference Red-Edge
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=223
+      formula: (B08 - B05) / (B08 + B05);
+
+    - name: NBR
+      description: Normalized Difference NIR/SWIR Normalized Burn Ratio
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=53
+      formula: (B08 - B12) / (B08 + B12);
+      
+    - name: OSAVI
+      description: Optimized Soil Adjusted Vegetation Index
+      formula: (1.0 + 0.16) * (B08 - B04) / (B08 + B04 + 0.16);
+      
+    - name: PPR
+      description: Normalized Difference 550/450 Plant pigment ratio
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=483
+      formula: (B03 - B01) / (B03 + B01);
+
+    - name: PVR
+      description: Normalized Difference 550/650 Photosynthetic vigour ratio
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=484
+      formula: (B03 - B04) / (B03 + B04);
+
+    - name: PNDVI
+      description: Pan NDVI
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=188
+      formula: (B08 - (B03 + B04 + B02)) / (B08 + (B03 + B04 + B02));
+
+    - name: PSNDc2
+      description: Normalized Difference 800/470 Pigment specific normalised difference c2
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=306
+      formula: (B08 - B02) / (B08 + B02);
+     
+    - name: PVI
+      description: Perpendicular Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=64
+      formula: (1.0 / Math.sqrt(Math.pow(0.149, 2.0) + 1.0)) * (B08 - 0.374 - 0.735);
+      
+    - name: RDVI
+      description: RDVI
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=240
+      formula: (B08 - B04) / Math.pow((B08 + B04), 0.5);
+      
+    - name: RBNDVI
+      description: Red-Blue NDVI
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=187
+      formula: (B08 - (B04 + B02)) / (B08 + (B04 + B02));
+
+    - name: RSR
+      description: Reduced Simple Ratio
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=75
+      formula: B08 / B04 * 0.640 - B12 / 0.640 - 0.259;
+
+    - name: REIP1
+      description: Red-Edge Inflection Point 1
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=137
+      formula: 700.0 + 40.0 * ((((B04 + B07) / 2.0) - B05) / (B06 - B05));
+      
+    - name: REIP2
+      description: Red-Edge Inflection Point 2
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=138
+      formula: 702.0 + 40.0 * ((((B04 + B07) / 2.0) - B05) / (B06 - B05));      
+
+    - name: RI
+      description: Normalized Difference Red/Green Redness Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=74
+      formula: (B04 - B03) / (B04 + B03);
+            
+    - name: RDVI
+      description: Renormalized Difference Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=76
+      formula: (B08 - B04) / Math.sqrt(B08 + B04) * 0.5;
+
+    - name: SARVI
+      description: Soil and Atmospherically Resistant Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=134
+      formula: (1.0 + 0.487) * (B08 - (0.740 - 0.735 * (0.560 - 0.740))) / (B08 + -(0.740 - 0.735 * (0.560 - 0.740)) + 0.487);
+      
+    - name: SARVI2
+      description: Soil and Atmospherically Resistant Vegetation Index 2
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=387
+      formula: 2.5 * (B08 - B04) / (1.0 + B08 + 6.0 * B04 - 7.5 * B02);
+      
+    - name: SAVI
+      description: Soil-adjusted vegetation index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=310
+      formula: (B08 - B04) / (B08 + B04 + 0.725) * (1.0 + 0.725);
+
+    - name: SAVI2
+      description: Soil-adjusted vegetation index 2
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=310
+      formula: B08 / (B04 + 0.918 /  0.064 );
+      
+    - name: SLAVI
+      description: Specific Leaf Area Vegetation Index 
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=89
+      formula:  B08 / (B04 + B12);
+      
+    - name: SCI
+      description: Soil Composition Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=88
+      formula:  (B11 - B08) / (B11 + B08);
+      
+    - name: SIPI1
+      description: Structure Intensive Pigment Index 1
+      url:  https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=90
+      formula: (B08 - B01) / (B08 - B04);
+
+    - name: SIPI3
+      description: Structure Intensive Pigment Index 3 
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=291
+      formula: (B08 - B02) / (B08 - B04);
+
+    - name: SRMIR_RED
+      description: Simple Ratio MIR/Red Eisenhydroxid-Index 
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=14
+      formula: B12 / B04;
+
+    - name: SBI
+      description: Tasselled Cap - brightness
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=91
+      formula: 0.3037 * B02 + 0.2793 * B03 + 0.4743 * B04 + 0.5585 * B08 + 0.5082 * B10 + 0.1863 * B12;
+
+    - name: GVIMSS
+      description: Tasselled Cap - Green Vegetation Index MSS
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=564
+      formula: -0.283 * B03 - 0.66 * B04 + 0.577 * B06 + 0.388 * B09;
+
+    - name: NSIMSS
+      description: Tasselled Cap - Non Such Index MSS
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=567
+      formula: -0.016 * B03 + 0.131 * B04 - 0.425 * B06 + 0.882 * B09;
+      
+    - name: SBIMSS
+      description: Tasselled Cap - Soil Brightness Index MSS
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=565
+      formula: 0.332 * B03 + 0.603 * B04 + 0.675 * B06 + 0.262 * B09;
+
+    - name: GVI
+      description: Tasselled Cap - vegetation
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=92
+      formula: -0.2848 * B02 - 0.2435 * B03 - 0.5436 * B04 + 0.7243 * B08 + 0.084 * B11 - 0.18 * B12;
+
+    - name: WET
+      description: Tasselled Cap - wetness
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=93
+      formula: 0.1509 * B02 + 0.1973 * B03 + 0.3279 * B04 + 0.3406 * B08 - 0.7112 * B11 - 0.4572 * B12;
+
+    - name: YVIMSS
+      description: Tasselled Cap - Yellow Vegetation Index MSS
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=566
+      formula: -0.899 * B03 + 0.428 * B04 + 0.076 * B06 - 0.041 * B09;      
+      
+    - name: TCARI
+      description: Transformed Chlorophyll Absorbtion Ratio
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=96
+      formula: 3.0 * ((B05 - B04) - 0.2 * (B05 - B03) * (B05 / B04));
+
+    - name: TCARI_OSAVI
+      description: TCARI_OSAVI
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=191
+      formula: (3.0 * (B05 - B04) - 0.2 * (B05 - B03) * B05 / B04) / ((1.0 + 0.16) * (B08 - B04) / (B08 + B04 + 0.16));
+
+    - name: TNDVI
+      description: Transformed NDVI
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=202
+      formula: Math.sqrt((B08 - B04) / (B08 + B04) + 0.5);
+
+    - name: TSAVI
+      description: Transformed Soil Adjusted Vegetation Index
+      url:  https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=97
+      formula: (0.421 * (B08 - 0.421 * B04 - 0.824)) / (B04 + 0.421 * (B08 - 0.824) + 0.114 * (1.0 + Math.pow(0.421, 2.0)));
+            
+    - name: TSAVI2
+      description: Transformed Soil Adjusted Vegetation Index 2
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=247
+      formula: (0.419 * B08 - 0.419 * B04 - 0.787) / (B04 + 0.419 * B08 - 0.419 * 0.787);
+
+    - name: TVI
+      description: Transformed Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=98
+      formula: Math.sqrt((((B04 - B03) / (B04 + B03))) + 0.5);
+
+    - name: TCI
+      description: Triangular chlorophyll index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=392
+      formula: 1.2 * (B05 - B03) - 1.5 * (B04 - B03) * Math.sqrt(B05 / B04);
+           
+    - name: VARIgreen
+      description: Visible Atmospherically Resistant Index Green
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=356
+      formula: (B03 - B04) / (B03 + B04 - B02);
+
+    - name: VARIrededge
+      description: Visible Atmospherically Resistant Indices RedEdge
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=130
+      formula: (B05 - B04) / (B05 + B04);
+            
+    - name: WDVI
+      description: Weighted Difference Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=104
+      formula: B08 - 0.752 * B04;
+            
+    - name: WDRVI
+      description: Wide Dynamic Range Vegetation Index
+      url: https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=125
+      formula: (0.1 * B08 - B04) / (0.1 * B08 + B04);
+      
