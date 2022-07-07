@@ -1,0 +1,19 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                  return {
+                    input: [ "PROB", "dataMask"],
+                    output: { bands: 2, sampleType: "FLOAT32"}
+                  };
+                }
+
+                function evaluatePixel(samples) {
+                  return [ samples.PROB,
+                           samples.dataMask
+                           ];
+                }
+    inputs:
+        - collection: byoc-3dbeea2c-3207-4c65-8a73-c29ce2675f89
+responses:
+    default: TIFF

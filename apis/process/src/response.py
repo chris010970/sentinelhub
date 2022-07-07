@@ -1,6 +1,5 @@
 import numpy as np
 import xarray as xr
-import pyepsg
 
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
@@ -15,7 +14,7 @@ from sentinelhub import bbox_to_dimensions
 
 class Response:
 
-    def __init__( self, df, bbox, resolution ):
+    def __init__( self, df, resolution, **kwargs ):
 
         """
         constructor
@@ -23,11 +22,15 @@ class Response:
 
         # copy args
         self._df = df
-        self._bbox = bbox
         self._resolution = resolution
 
+        # optional args
+        self._bbox = kwargs.get( 'bbox' )
+        if self._bbox is None:
+            self._bbox = kwargs[ 'geometry' ].bbox
+
         # get map coordinate vectors and extent
-        self._transform, self._map_x, self._map_y = self.getMapCoordinates( bbox, resolution )
+        self._transform, self._map_x, self._map_y = self.getMapCoordinates( self._bbox, resolution )
         self._extent = [    np.amin( self._map_x ), 
                             np.amax( self._map_x ), 
                             np.amin( self._map_y ), 
@@ -332,11 +335,3 @@ class Response:
                 break
 
         return times
-
-"""
-import pickle 
-f = open( 'response.obj', 'rb' ) 
-response = pickle.load(f)
-
-response.plotImages( 'heatmap.tif', osm_zoom=11, gridlines=True, features=['coastlines'] )
-"""

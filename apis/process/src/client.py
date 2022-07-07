@@ -1,23 +1,19 @@
 import os
 import json
-import numpy as np
 import pandas as pd
-import geopandas as gpd
-
-from shapely.geometry import shape
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from sentinelhub import SHConfig
 from sentinelhub import CRS
 from sentinelhub import BBox
+from sentinelhub import Geometry
 from sentinelhub import MimeType
 from sentinelhub import SentinelHubRequest
 from sentinelhub import SentinelHubDownloadClient
-from sentinelhub import DataCollection
-from sentinelhub import ByocCollection
-from sentinelhub import bbox_to_dimensions
-from sentinelhub import DownloadRequest
 from sentinelhub import SentinelHubCatalog
+from sentinelhub import DataCollection
+
+from sentinelhub import bbox_to_dimensions
 from sentinelhub import filter_times
 from sentinelhub import geo_utils
 
@@ -83,14 +79,17 @@ class Client:
             return DataCollection[ _input.collection ]
 
 
-    def getDatasetTimeStamps( self, _input, bbox, timeframe ):
+    def getDatasetTimeStamps( self, _input, timeframe, **kwargs ):
 
         """
         get timestamps of scenes collocated with bbox acquired between timeframe
         """
 
-        # one hour interval
         timestamps = []
+
+        # optional args
+        bbox = kwargs.get( 'bbox' )
+        geometry = kwargs.get( 'geometry' )
 
         # get catalog
         catalog = self.getCatalog()
@@ -100,6 +99,7 @@ class Client:
             iterator = catalog.search (
                         self.getDataCollection( _input ),
                         bbox=bbox,
+                        geometry=geometry,
                         time=self.getTimeInterval( timeframe ),
                         query=self.getQuery( _input.get( 'catalog' ) ),
                         fields=self.getFields( _input.get( 'catalog' ) )
@@ -112,7 +112,7 @@ class Client:
         return timestamps
 
 
-    def getTimeSeries ( self, bbox, timeframe, resolution, out_path=None, timestamps=None, max_downloads=100 ):
+    def getTimeSeries ( self, timeframe, resolution, **kwargs ):
 
         """
         get time series imagery satisfying filtering conditions
@@ -120,9 +120,16 @@ class Client:
 
         requests = []
 
+        # parse optional args
+        out_path = kwargs.get( 'out_path' )
+        timestamps = kwargs.get( 'timestamps' )
+        max_downloads = kwargs.get( 'max_downloads', 100 )
+
         # use timeframe to generate timestamp list by default
         if timestamps is None:
-            timestamps = self.getDatasetTimeStamps( self._inputs[ 0 ], bbox, timeframe )
+            timestamps = self.getDatasetTimeStamps( self._inputs[ 0 ], 
+                                                    timeframe, 
+                                                    **kwargs )
 
         # for each scene timestamp    
         timestamps = timestamps[ : max_downloads ]
@@ -139,14 +146,13 @@ class Client:
                 for _input in self._inputs:
 
                     # compute temporal window around timestamp
-                    timeframe[ _input.collection ] = self.getTimeFrame( _input, bbox, timestamp )
+                    timeframe[ _input.collection ] = self.getTimeFrame( _input, timestamp, **kwargs )
                                         
                 # construct new request covering 1 hour time slice
-                requests.append (   self.getRequest( bbox, 
-                                    timeframe, 
-                                    resolution, 
-                                    data_path=data_path ) )
-
+                kwargs[ 'data_path' ] = data_path
+                requests.append (   self.getRequest(    timeframe, 
+                                                        resolution, 
+                                                        **kwargs ) )
             else:
                
                 # path already exists
@@ -168,10 +174,10 @@ class Client:
                 data = { 'default' : data }
 
         # parse responses into dataframe        
-        return None if data is None else Response ( pd.DataFrame.from_dict( data ).assign( time=timestamps ), bbox, resolution )
+        return None if data is None else Response ( pd.DataFrame.from_dict( data ).assign( time=timestamps ), resolution, **kwargs )
 
 
-    def getMosaics ( self, bbox, timeframes, resolution, out_path=None ):
+    def getMosaics ( self, timeframes, resolution, **kwargs ):
 
         """
         get aggregated mosaics satisfying filtering conditions
@@ -179,6 +185,7 @@ class Client:
 
         # handle list conversion
         timeframes = timeframes if type( timeframes ) is list else [ timeframes ]
+        out_path = kwargs.get( 'out_path' )
 
         requests = []
         for timeframe in timeframes:
@@ -188,10 +195,10 @@ class Client:
             if data_path is None or not os.path.exists( data_path ):
 
                 # create and forward request
-                requests.append( self.getRequest(   bbox, 
-                                                    timeframe, 
+                kwargs[ 'data_path' ] = data_path
+                requests.append( self.getRequest(   timeframe, 
                                                     resolution, 
-                                                    data_path=data_path ) )
+                                                    **kwargs ) )
             else:
                 
                 # path already exists
@@ -212,14 +219,21 @@ class Client:
             if not isinstance( data [ 0 ], dict ):
                 data = { 'default' : data }
 
-        return None if data is None else Response ( pd.concat( [ pd.DataFrame.from_dict( data ), pd.DataFrame.from_dict( timeframes ) ], axis=1 ), bbox, resolution )
+        return None if data is None else Response ( pd.concat( [ pd.DataFrame.from_dict( data ), pd.DataFrame.from_dict( timeframes ) ], axis=1 ), 
+                                                    resolution, 
+                                                    **kwargs )
         
 
-    def getRequest( self, bbox, timeframe, resolution, data_path=None ):
+    def getRequest( self, timeframe, resolution, **kwargs ):
 
         """
         get request
         """
+
+        # get optional args
+        bbox = kwargs.get( 'bbox' )
+        geometry = kwargs.get( 'geometry' )
+        data_path = kwargs.get( 'data_path' )
 
         # compile list of responses
         responses = []
@@ -247,12 +261,13 @@ class Client:
                     input_data=input_data,
                     responses=responses,
                     bbox=bbox,
-                    size=self.getBoxDimensions( bbox, resolution ),
+                    geometry=geometry,
+                    resolution=(resolution, resolution),
                     config=self._config
         )
 
 
-    def getTimeFrame( self, _input, bbox, timestamp ):
+    def getTimeFrame( self, _input, timestamp, **kwargs ):
 
         """
         initialise start and end lag
@@ -271,9 +286,9 @@ class Client:
 
             # get timestamps of datasets within lag temporal window
             lag_timestamps = self.getDatasetTimeStamps(  _input, 
-                                                            bbox, 
-                                                        {   'start' : ( timestamp - ( self._delta * start_lag ) ), 
-                                                            'end' : ( timestamp + ( self._delta * end_lag ) ) } )
+                                                       {   'start' : ( timestamp - ( self._delta * start_lag ) ), 
+                                                            'end' : ( timestamp + ( self._delta * end_lag ) ) },
+                                                            **kwargs )
 
             # locate closest available dataset in time
             min_diff = timedelta( weeks=1000 )
@@ -334,28 +349,7 @@ class Client:
 
         return data_path
 
-
-    def getBoundingBox( self, bounds, src_crs=CRS.WGS84, dst_crs=None ):
-
-        """
-        return bounding box object
-        """
-
-        # construct bbox - apply optional transform (default to mercator)
-        bbox = BBox( bbox=bounds, crs=src_crs )
-        return geo_utils.to_utm_bbox( bbox ) if dst_crs is None else bbox.transform( CRS( dst_crs ) )
-
-
-    def getBoxDimensions( self, bbox, resolution ):
-
-        """
-        return image dimensions of bounding box geometry
-        """
-
-        # return image dimensions of bounding box
-        return bbox_to_dimensions( bbox, resolution=resolution)
-
-
+    
     def getTimeInterval( self, timeframe ):
 
         """
@@ -434,3 +428,36 @@ class Client:
                                                 time_interval=self.getTimeInterval( timeframe ),
                                                 mosaicking_order=mosaic_order if mosaic_order is not None else 'mostRecent',
                                                 other_args=other_args if bool ( other_args ) else None )
+
+    @staticmethod
+    def getGeometry( feature, src_crs=CRS.WGS84, dst_crs=None ):
+
+        """
+        return geometry object
+        """
+
+        geometry = Geometry( feature, CRS( src_crs ) )
+        return geometry if dst_crs is None else geometry.transform( CRS( dst_crs ) )
+
+    
+    @staticmethod
+    def getBoundingBox( bounds, src_crs=CRS.WGS84, dst_crs=None ):
+
+        """
+        return bounding box object
+        """
+
+        # construct bbox - apply optional transform (default to mercator)
+        bbox = BBox( bbox=bounds, crs=src_crs )
+        return geo_utils.to_utm_bbox( bbox ) if dst_crs is None else bbox.transform( CRS( dst_crs ) )
+
+    
+    @staticmethod
+    def getBoxDimensions( bbox, resolution ):
+
+        """
+        return image dimensions of bounding box geometry
+        """
+
+        # return image dimensions of bounding box
+        return bbox_to_dimensions( bbox, resolution=resolution)
