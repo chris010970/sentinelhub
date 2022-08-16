@@ -1,0 +1,29 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [ { bands: [  "PPI",
+                                             "NDVI",
+                                             "FAPAR",
+                                             "LAI",
+                                             "QFLAG2"
+                                          ],
+                                units: ["DN", "DN", "DN", "DN", "DN" ] 
+                        }],
+                        output: { bands: 5, sampleType: SampleType.UINT16  }
+                    };
+                }
+                function evaluatePixel(sample) {
+                    return [ sample.PPI,
+                            sample.NDVI,
+                            sample.FAPAR,
+                            sample.LAI,
+                            sample.QFLAG2
+                    ]
+                }  
+    inputs:
+        - collection: byoc-472c0398-430d-4157-a62d-603363d7a4e8
+responses:    
+    default: TIFF
+

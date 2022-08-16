@@ -1,0 +1,23 @@
+request:
+    evalscript: |
+                //VERSION=3
+                function setup() {
+                    return {
+                        input: [ { bands: [  "PPI",
+                                             "QFLAG"
+                                          ],
+                                units: ["DN", "DN" ] 
+                        }],
+                        output: { bands: 2, sampleType: SampleType.UINT16  }
+                    };
+                }
+                function evaluatePixel(sample) {
+                    return [ sample.PPI,
+                            sample.QFLAG
+                    ]
+                }  
+    inputs:
+        - collection: byoc-90f0abac-87cf-4277-958b-d8c56d9e5371
+responses:    
+    default: TIFF
+
