@@ -29,10 +29,7 @@ class SentinelTest:
             bbox = client.getBoundingBox( coords )
 
             # get time series
-            response = client.getTimeSeries ( timeframe, resolution, bbox=bbox )
-            response.plotImages( 'rgb.tif', alpha={ 'data' : 1.0, 'grid' : 0.0 } )
-
-            return
+            return client.getTimeSeries ( timeframe, resolution, bbox=bbox )
 
 
         @staticmethod
@@ -51,10 +48,7 @@ class SentinelTest:
             geometry = Client.getGeometry( gdf.geometry.values[ 0 ], dst_crs=CRS(gdf.estimate_utm_crs()) )
 
             # get time series
-            response = client.getTimeSeries ( timeframe, resolution, geometry=geometry )
-            response.plotImages( 'rgb.tif', alpha={ 'data' : 1.0, 'grid' : 0.0 } )
-
-            return
+            return client.getTimeSeries ( timeframe, resolution, geometry=geometry )
 
 
     class Mosaic:
@@ -75,10 +69,34 @@ class SentinelTest:
             bbox = client.getBoundingBox( coords )
 
             # get time series
-            response = client.getMosaics ( timeframe, resolution, bbox=bbox )
-            response.plotImages( 'default', alpha={ 'data' : 1.0, 'grid' : 0.0 } )
+            return client.getMosaics ( timeframe, resolution, bbox=bbox )
 
-            return
+
+    @staticmethod
+    def runS1Tests():
+
+        """
+        execute sentinel-3 based requests
+        """
+
+        # define repo name and get root working directory
+        repo = 'process'
+        root_path = os.getcwd()[ 0 : os.getcwd().find( repo ) + len ( repo )]
+
+        # get path to configuration files
+        cfg_path = os.path.join( root_path, 'cfg' )
+        cfg_path = os.path.join( cfg_path, 'sentinel-1' )
+
+        # chicago example    
+        SentinelTest.TimeSeries.getBoundingBox(    os.path.join( cfg_path, 's1-biometrics-test.yml' ),
+                                                [-83.039886,42.262866,-82.777136,42.473535],
+                                                20,
+                                                { 'start' : datetime( 2020, 5, 2, 0, 0, 0 ), 
+                                                'end' : datetime( 2020, 5, 15, 23, 59, 59 ) }
+        )
+        input( 'Press Enter to continue...' )
+
+        return
 
 
     @staticmethod
@@ -96,13 +114,16 @@ class SentinelTest:
         cfg_path = os.path.join( root_path, 'cfg' )
         cfg_path = os.path.join( cfg_path, 'sentinel-2' )
 
+        """
         # chicago example    
-        SentinelTest.TimeSeries.getBoundingBox(    os.path.join( cfg_path, 's2-timeseries-rgb.yml' ),
+        response = SentinelTest.TimeSeries.getBoundingBox(    os.path.join( cfg_path, 's2-timeseries-rgb.yml' ),
                                                 [-83.039886,42.262866,-82.777136,42.473535],
                                                 20,
                                                 { 'start' : datetime( 2020, 5, 2, 0, 0, 0 ), 
                                                 'end' : datetime( 2020, 5, 15, 23, 59, 59 ) }
         )
+        response.plotImages( 'rgb.tif', alpha={ 'data' : 1.0, 'grid' : 0.0 } )
+
         input( 'Press Enter to continue...' )
 
         # wells geometry example
@@ -122,6 +143,29 @@ class SentinelTest:
                                                 'end' : datetime.strptime('2020-06-13', '%Y-%m-%d') }
         )
         input( 'Press Enter to continue...' )
+
+        # chicago example    
+        response = SentinelTest.TimeSeries.getBoundingBox(    os.path.join( cfg_path, 's2-timeseries-reflectance.yml' ),
+                                                [-83.039886,42.262866,-82.777136,42.473535],
+                                                20,
+                                                { 'start' : datetime( 2020, 5, 2, 0, 0, 0 ), 
+                                                'end' : datetime( 2020, 5, 15, 23, 59, 59 ) }
+        )
+        ds = response.convertToDataset()
+        input( 'Press Enter to continue...' )
+        """
+
+
+        # chicago example    
+        response = SentinelTest.TimeSeries.getBoundingBox(    os.path.join( cfg_path, 'settlement.yml' ),
+                                                [-83.039886,42.262866,-82.777136,42.473535],
+                                                30,
+                                                { 'start' : datetime( 1984, 5, 2, 0, 0, 0 ), 
+                                                'end' : datetime( 2020, 5, 15, 23, 59, 59 ) }
+        )
+        #ds = response.convertToDataset()
+        input( 'Press Enter to continue...' )
+
         return
 
 
@@ -151,4 +195,4 @@ class SentinelTest:
 
         return
 
-SentinelTest.runS2Tests()
+SentinelTest.runS1Tests()

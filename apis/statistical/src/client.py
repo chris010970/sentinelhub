@@ -1,10 +1,7 @@
-import numpy as np
-import pandas as pd
-import geopandas as gpd
+import json
 
-from shapely.geometry import shape
-from datetime import datetime, timedelta
 from munch import unmunchify 
+from datetime import timedelta
 
 from sentinelhub import BBox
 from sentinelhub import SHConfig
@@ -12,17 +9,18 @@ from sentinelhub import CRS
 from sentinelhub import DataCollection
 from sentinelhub import SentinelHubStatistical
 from sentinelhub import SentinelHubStatisticalDownloadClient
+from sentinelhub import SentinelHubCatalog
 from sentinelhub import Geometry
 from sentinelhub import filter_times
 from sentinelhub import geo_utils
 
 # app class
-from response import Response
-#from .response import Response
+#from response import Response
+from .response import Response
 
 class Client:
 
-    def __init__( self, config ):
+    def __init__( self, config, base_url=None ):
 
         """
         constructor
@@ -30,9 +28,13 @@ class Client:
 
         # get configuration 
         self.setConfiguration( config ) 
+        base_url = config.get( 'base_url', base_url )
 
         # create sh config
         self._config = SHConfig()
+        if base_url is not None:
+            self._config.sh_base_url = base_url
+
         self._delta = timedelta(hours=1)
 
         return
@@ -74,6 +76,18 @@ class Client:
             return DataCollection[ _input.collection ]
 
 
+    def getCatalog( self ):
+
+        """
+        get catalog pertaining to data collection
+        """
+
+        # get catalog for collection
+        return SentinelHubCatalog(
+            config=self._config
+        )
+
+
     def getDatasetTimeStamps( self, _input, bbox, timeframe ):
 
         """
@@ -112,6 +126,7 @@ class Client:
         # parse optional args
         bbox = kwargs.get( 'bbox' )
         polygons = kwargs.get( 'polygons' )
+        verbose = kwargs.get( 'verbose', False )
 
         # build requests from args
         requests = []; ids = None
@@ -142,7 +157,7 @@ class Client:
             data = { 'default' : data }
 
         # parse responses into dataframe        
-        return None if data is None else Response ( data, ids=ids )
+        return None if data is None else Response ( data, ids=ids, verbose=verbose )
 
 
     def getRequest( self, timeframe, **kwargs ):
@@ -239,31 +254,159 @@ class Client:
         return geo_utils.to_utm_bbox( bbox ) if dst_crs is None else bbox.transform( CRS( dst_crs ) )
 
 
+    def getQuery( self, config ):
+
+        """
+        get json encoded query
+        """
+
+        # default to none
+        query = None
+        if config is not None:
+            # convert json obj to dict
+            if config.get( 'query' ) is not None:
+                query = json.loads( config.get( 'query' ) )
+            
+        return query 
+
+
+    def getFields( self, config ):
+
+        """
+        get json encoded query
+        """
+
+        # default to none
+        fields = None
+        if config is not None:
+
+            # convert json obj to dict
+            if config.get( 'fields' ) is not None:
+
+                # add geoemtry field
+                fields = json.loads( config.get( 'fields' ) )
+                fields[ 'include' ].append( 'geometry' )
+            
+
+        return fields
+
+
+"""
 import os 
 import yaml
 from munch import munchify
+import geopandas as gpd
+import time
+
+from shapely.geometry import box
+
+import pyproj
+from shapely.ops import transform
+
+import numpy as np
+import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Point
+
+
+coords = 36.65, -0.85, 36.72, -0.82
+bbox = box( *coords )
+
+# transform bounding box to mercator
+project = pyproj.Transformer.from_crs( 'epsg:4326', 'epsg:3857', always_xy=True ) 
+bbox = transform(project.transform, bbox)
+xmin, ymin, xmax, ymax = bbox.bounds
+
+
+cell_size = 200
+
+# generate grid of nominated cell size in metres
+samples = []; idx = 0
+for x in np.arange( xmin, xmax+cell_size, cell_size ):
+    for y in np.arange( ymin, ymax+cell_size, cell_size):
+        samples.append( { 'id' : idx, 'geometry' : Point( x + (cell_size / 2) , y + ( cell_size / 2 ) ) } )
+        idx += 1
+
+
+samples = gpd.GeoDataFrame( samples, crs='epsg:3857' )
+samples.geometry = samples.geometry.buffer( 30 )
 
 # define repo name and get root working directory
-repo = 'statistical-api'
+repo = 'statistical'
 root_path = os.getcwd()[ 0 : os.getcwd().find( repo ) + len ( repo )]
 
 # get path to configuration files
 cfg_path = os.path.join( root_path, 'cfg' )
-cfg_path = os.path.join( cfg_path, 'fusion' )
+cfg_path = os.path.join( cfg_path, 'sentinel-2' )
 
 # get pathname to configuration file
-cfg_file = os.path.join( cfg_path, 's1-s2-metrics.yml' )
+cfg_file = os.path.join( cfg_path, 's2-agdb-metrics.yml' )
 
 # load cfg file using yaml parser
 with open( cfg_file, 'r' ) as f:
     config = munchify( yaml.safe_load( f ) )
 
-gdf = gpd.read_file( os.path.join( root_path, 'test/wells.geojson' ) )
-gdf = gdf.to_crs( gdf.estimate_utm_crs()  )
 
 # define aggregation timeframe
 from datetime import datetime
-timeframe = { 'start' : datetime.strptime('2020-07-04', '%Y-%m-%d'), 'end' : datetime.strptime('2020-07-15', '%Y-%m-%d') }
+timeframe = { 'start' : datetime.strptime('2022-05-01', '%Y-%m-%d'), 
+              'end' : datetime.strptime('2022-06-30', '%Y-%m-%d') }
+
+
+client = Client( config )
+
+s2_metrics = pd.DataFrame()
+
+chunk_size = 100
+for offset in range ( 0, len( samples ), chunk_size ):
+
+    # process records in chunks - transform to local utm
+    subset = samples[ offset : offset + chunk_size ].copy()
+    subset = subset.to_crs( subset.estimate_utm_crs() )
+
+    response = client.getStatistics( [ timeframe ], resolution=10, polygons=subset, interval='P1D' )   
+    if response is not None:
+
+        filtered = list()
+        for df in response._dfs:
+            filtered.append( df [ ( df[ 'stats_clm_mean' ] < 0.1 ) & ( df[ 'stats_clm_noDataCount'] < 10 ) ] )
+
+        filtered = pd.concat( [ x for x in filtered if not x.empty ], ignore_index=True )
+        if not filtered.empty:
+            s2_metrics = pd.concat( [ filtered, s2_metrics ] )
+
+
+s2_metrics.to_pickle( 's2_metrics.pkl' )
+
+import os 
+import yaml
+from munch import munchify
+import geopandas as gpd
+
+# define repo name and get root working directory
+repo = 'statistical'
+root_path = os.getcwd()[ 0 : os.getcwd().find( repo ) + len ( repo )]
+
+# get path to configuration files
+cfg_path = os.path.join( root_path, 'cfg' )
+cfg_path = os.path.join( cfg_path, 'sentinel-2' )
+
+# get pathname to configuration file
+cfg_file = os.path.join( cfg_path, 's2-lai.yml' )
+cfg_file = 'C:\\Users\\crwil\\Documents\\GitHub\\uhi\\cfg\\landsat\\etm\\statistical-lst.yml'
+
+# load cfg file using yaml parser
+with open( cfg_file, 'r' ) as f:
+    config = munchify( yaml.safe_load( f ) )
+
+#gdf = gpd.read_file( os.path.join( root_path, 'test/wells.geojson' ) )
+#gdf = gdf.to_crs( gdf.estimate_utm_crs()  )
+
+gdf = gpd.read_file( os.path.join( root_path, 'test/polygons.shp' ) )
+
+# define aggregation timeframe
+from datetime import datetime
+timeframe = { 'start' : datetime.strptime('2016-10-01', '%Y-%m-%d'), 'end' : datetime.strptime('2016-10-30', '%Y-%m-%d') }
 
 # get mosaic between timeframe at specified pixel resolution
 client = Client( config )
@@ -273,6 +416,9 @@ client = Client( config )
 #crs = CRS( 32633 )
 #bbox = client.getBoundingBox( coords, crs )
 
-response = client.getStatistics( [ timeframe ], resolution=100, polygons=gdf )
+response = client.getStatistics( [ timeframe ], resolution=10, polygons=gdf[ : 10 ] )
 #response = client.getStatistics( [ timeframe ], resolution=10, bbox=bbox )
-response._df
+response._dfs
+
+"""
+

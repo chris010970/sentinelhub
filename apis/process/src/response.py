@@ -1,4 +1,6 @@
+import affine
 import numpy as np
+import rioxarray 
 import xarray as xr
 
 import matplotlib.pyplot as plt
@@ -86,8 +88,8 @@ class Response:
                     if len( data.shape ) == 3:              # only 3d supported for now
 
                         # construct data array
-                        da = xr.DataArray(  data=data.transpose( 2, 1, 0 ),
-                                            dims=[ "x","y", "time" ],
+                        da = xr.DataArray(  data=data.transpose( 1, 2, 0 ),
+                                            dims=[ "y", "x","time" ],
                                             coords=dict(
                                                 east=( ["x"], self._map_x ),
                                                 north=( ["y"], self._map_y ),
@@ -103,6 +105,10 @@ class Response:
                             ds = da.to_dataset( name=name )
                         else:
                             ds[ name ] = da
+
+        # add geotransform and crs to dataset via rioxarray plugin
+        ds.rio.write_transform( affine.Affine.from_gdal( *self._transform ), inplace=True )
+        ds.rio.write_crs( 'epsg:{}'.format( self._bbox.crs.value ), inplace=True )
 
         return ds
 
